@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPACEWARD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Barlow:wght@400;500&display=swap">
+<style>
+:root{
+  /* Vacuum, monochrome: black, white, one grey. The only colour on the page is in the imagery. Single theme by choice. */
+  --void:#07080B; --hull:#11141A; --plate:#1C212B; --line:#2A303C;
+  --steel:#8D95A3; --star:#F4F5F7;
+  --display:'Barlow Condensed','Arial Narrow',Impact,sans-serif;
+  --body:'Barlow','Helvetica Neue',Arial,sans-serif;
+  /* Layout: one tall column you climb, home at the bottom. Shop and manifesto are separate views. */
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--void);color:var(--star);font-family:var(--body);font-size:18px;line-height:1.5;overflow:hidden}
+:focus-visible{outline:2px solid var(--star);outline-offset:3px}
+img{max-width:100%;height:auto;display:block}
+button{font:inherit;color:inherit}
+#map{position:fixed;left:0;right:0;top:-30%;height:130%;background:#000 url(img/stars.jpg) center/cover no-repeat;pointer-events:none;will-change:transform}
+#stars{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+#sky,.page{position:relative;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+#sky::-webkit-scrollbar,.page::-webkit-scrollbar{display:none}
+.page{display:none;background:var(--void)}
+body:not([data-view="ascent"]) #sky,body:not([data-view="ascent"]) .rail,body:not([data-view="ascent"]) .hud,body:not([data-view="ascent"]) #stars,body:not([data-view="ascent"]) #map{display:none}
+body[data-view="shop"] #shop,body[data-view="manifesto"] #manifesto{display:block}
+.ascent{display:flex;flex-direction:column-reverse}
+.stage{position:relative;min-height:clamp(620px,100vh,1040px);display:flex;align-items:center;padding:104px clamp(20px,6vw,96px) 104px;padding-right:clamp(64px,11vw,180px);overflow:hidden}
+.stage.tall{height:240vh;min-height:0;padding:0;overflow:visible;flex-direction:column;justify-content:flex-end;align-items:stretch}
+.pin{position:sticky;bottom:0;height:100vh;display:flex;align-items:center;padding:104px clamp(20px,6vw,96px) 104px;padding-right:clamp(64px,11vw,180px)}
+.inner{position:relative;width:100%;max-width:1120px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:40px 56px}
+.copy{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:18px;align-items:flex-start}
+.art{flex:1 1 320px;min-width:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.alt{font-family:var(--display);font-weight:500;font-size:17px;letter-spacing:.18em;color:var(--steel);font-variant-numeric:tabular-nums;text-transform:uppercase}
+h1,h2,h3{margin:0;font-family:var(--display);font-weight:800;line-height:.92;letter-spacing:.01em;text-wrap:balance;text-transform:uppercase}
+h1{font-size:clamp(52px,min(7.4vw,14vh),108px)}
+.h2s{font-size:clamp(36px,4.4vw,60px)}
+h2{font-size:clamp(42px,6vw,84px)}
+h3{font-size:clamp(26px,3vw,34px);line-height:1}
+p{margin:0;max-width:34em;color:#C9CED6}
+.tag{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.6vw,30px);letter-spacing:.06em;text-transform:uppercase;color:var(--star);line-height:1.1}
+.cap{font-size:14px;color:var(--steel);max-width:none;text-align:center}
+.btn{display:inline-flex;align-items:center;min-height:48px;padding:0 24px;font-family:var(--display);font-weight:800;font-size:19px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border:1px solid var(--star);background:var(--star);color:var(--void);cursor:pointer}
+.btn:hover{background:transparent;color:var(--star)}
+.btn.line{background:transparent;color:var(--star)}
+.btn.line:hover{background:var(--star);color:var(--void)}
+.row{display:flex;flex-wrap:wrap;gap:14px 18px;align-items:center}
+.note{font-size:15px;color:var(--steel)}
+.bar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px clamp(16px,4vw,40px);background:linear-gradient(to bottom,rgba(7,8,11,.9),rgba(7,8,11,0))}
+.brand{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--star);cursor:pointer;padding:6px 0;font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:.2em}
+.mark{width:34px;height:34px;flex:none}
+.bar nav{display:flex;gap:clamp(14px,3vw,34px)}
+.bar nav button,.bar nav a{background:none;border:0;text-decoration:none;display:inline-block;color:var(--star);cursor:pointer;padding:12px 0;font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.18em;text-transform:uppercase;border-bottom:1px solid transparent}
+.bar nav button:hover,.bar nav a:hover,.bar nav button[aria-current="page"]{border-bottom-color:var(--star)}
+.hud{position:fixed;left:clamp(8px,calc(4vw - 10px),30px);bottom:12px;z-index:5;display:flex;flex-direction:column;gap:2px;padding:8px 10px;background:rgba(7,8,11,.72);font-family:var(--display);text-transform:uppercase;pointer-events:none}
+.hud .v{font-weight:800;font-size:clamp(22px,3vw,30px);letter-spacing:.05em;line-height:1;font-variant-numeric:tabular-nums}
+.hud .s{font-weight:500;font-size:15px;letter-spacing:.2em;color:var(--steel)}
+.rail{position:fixed;right:clamp(10px,2.6vw,32px);top:96px;bottom:80px;z-index:5;width:44px}
+.rail::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line)}
+.tick{position:absolute;left:0;width:44px;height:44px;margin-top:-22px;background:none;border:0;cursor:pointer;padding:0}
+.tick::before{content:"";position:absolute;left:50%;top:50%;width:11px;height:1px;margin-left:-5px;background:var(--steel)}
+.tick span{position:absolute;right:38px;top:50%;transform:translateY(-50%);white-space:nowrap;font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--star);opacity:0;transition:opacity .2s}
+.tick:hover span,.tick:focus-visible span{opacity:1}
+.ship{position:absolute;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;color:var(--star);pointer-events:none}
+.ship svg{display:block;width:22px;height:22px}
+.plume{position:absolute;left:50%;top:18px;width:3px;margin-left:-1.5px;height:var(--burn,6px);background:linear-gradient(to bottom,rgba(244,245,247,.9),rgba(244,245,247,0))}
+/* home */
+#orbits{width:min(84vw,62vh,560px);aspect-ratio:1.18;display:block}
+#home .copy{flex:1.15 1 380px}
+#cislunar .art{flex:1.4 1 380px}
+#cislunar .inner{gap:24px 48px}
+/* cislunar */
+#cis{width:auto;max-width:100%;height:min(44vh,480px);display:block}
+#cis text{font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.14em;fill:var(--star)}
+#cis text.sm{font-weight:500;font-size:13px;fill:var(--steel)}
+#cis .k{transition:opacity .25s}
+#cis.dim .k{opacity:.2}
+#cis.dim .k.hot{opacity:1}
+.chips{display:flex;flex-wrap:wrap;gap:8px;width:100%}
+.cb{min-height:44px;padding:0 12px;background:transparent;border:1px solid var(--line);cursor:pointer;font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--star)}
+.cb:hover,.cb[aria-pressed="true"]{border-color:var(--star)}
+.cb[aria-pressed="true"]{background:var(--star);color:var(--void)}
+.desc{min-height:1.6em}
+/* morphing worlds */
+.morph{position:relative;width:min(72vw,56vh,460px);aspect-ratio:1}
+.m-moon{-webkit-mask-image:radial-gradient(ellipse 40% 40% at 53% 50.4%,#000 98.5%,transparent 100%);mask-image:radial-gradient(ellipse 40% 40% at 53% 50.4%,#000 98.5%,transparent 100%)}
+.m-mars{-webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 91%,transparent 99%);mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 91%,transparent 99%)}
+.morph img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .8s ease}
+.morph img+img{opacity:0}
+.morph.live img+img{opacity:1;transition:opacity 4s ease}
+.morph.live img:nth-child(2){transition-delay:1.6s}
+.morph.live img:nth-child(3){transition-delay:5.6s}
+.morph.live img:nth-child(4){transition-delay:9.6s}
+.soon{font-size:15px;color:var(--steel)}
+.soon a,.essay a{color:var(--star);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--steel)}
+.il{color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--steel)}
+.soon a:hover,.il:hover,.essay a:hover{text-decoration-color:var(--star)}
+.rocks{position:relative;width:min(78vw,460px);aspect-ratio:1.05}
+.rocks img{position:absolute;mix-blend-mode:screen}
+.rocks .vesta{width:78%;left:0;top:0}
+.rocks .bennu{width:30%;right:0;bottom:2%}
+.era{display:flex;align-items:center;gap:12px;font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.18em;text-transform:uppercase;color:var(--steel)}
+.era i{display:block;width:120px;height:1px;background:var(--line);position:relative}
+.era i b{position:absolute;left:0;top:-1px;height:3px;width:0;background:var(--star)}
+.era span.on{color:var(--star)}
+/* belt */
+.stats{display:flex;flex-wrap:wrap;gap:20px 30px;width:100%}
+.stat{flex:1 1 140px;display:flex;flex-direction:column;gap:6px;padding-top:14px;border-top:1px solid var(--steel)}
+.stat b{font-family:var(--display);font-weight:800;font-size:clamp(30px,3.6vw,44px);line-height:1;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.stat span{font-size:15px;color:#C9CED6}
+/* solar system */
+.worlds{display:flex;flex-wrap:wrap;gap:6px 4px;width:100%}
+.wb{display:flex;flex-direction:column;align-items:center;gap:6px;width:76px;padding:8px 2px;background:none;border:1px solid transparent;cursor:pointer;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
+.wb img{width:46px;height:46px;object-fit:contain;mix-blend-mode:screen;transition:transform .25s}
+.wb:hover img,.wb[aria-pressed="true"] img{transform:scale(1.28)}
+.wb:hover,.wb[aria-pressed="true"]{color:var(--star)}
+.wb[aria-pressed="true"]{border-color:var(--line)}
+.wdetail{display:flex;flex-wrap:wrap;align-items:center;gap:28px 56px;width:100%;min-height:250px}
+.wview{position:relative;width:min(60vw,230px);aspect-ratio:1;flex:none;margin:10px 40px 10px 30px}
+.wview img{width:100%;height:100%;object-fit:contain;mix-blend-mode:screen}
+.mk{position:absolute;display:flex;align-items:center;gap:8px;transform:translate(-9px,-9px);white-space:nowrap;font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--star)}
+.mk.l{flex-direction:row-reverse;transform:translate(calc(-100% + 9px),-9px)}
+.mk::before{content:"";width:16px;height:16px;border:1.5px solid var(--star);border-radius:50%;flex:none;background:rgba(7,8,11,.35)}
+.wtext{flex:1 1 300px;display:flex;flex-direction:column;gap:10px}
+footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--steel)}
+/* pages */
+.wrap{max-width:1080px;margin:0 auto;padding:128px clamp(20px,6vw,64px) 96px;display:flex;flex-direction:column;gap:48px}
+.items{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:56px 48px}
+.item{display:flex;flex-direction:column;gap:16px;align-items:flex-start}
+.tile{width:100%;background:var(--hull);display:flex;align-items:center;justify-content:center;gap:4%;padding:8% 6%;aspect-ratio:4/3}
+.prod{width:86%;height:auto;display:block}
+.tile .tee{width:46%}
+.essay{max-width:680px;display:flex;flex-direction:column;gap:18px}
+.essay p{font-size:20px;line-height:1.55;max-width:none}
+.essay .lede{font-size:24px;color:var(--star)}
+.essay h3{margin-top:22px}
+.tenets{margin:0;padding:0;list-style:none;counter-reset:t;display:flex;flex-direction:column;gap:14px}
+.tenets li{counter-increment:t;padding:14px 0 0 56px;border-top:1px solid var(--line);position:relative;font-size:20px;line-height:1.5;color:#C9CED6}
+.tenets li::before{content:"0" counter(t);position:absolute;left:0;top:14px;font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:.08em;color:var(--steel)}
+.tenets b{color:var(--star)}
+.essay .sign{font-family:var(--display);font-weight:800;font-size:44px;letter-spacing:.04em;text-transform:uppercase;color:var(--star);margin-top:18px}
+@media (max-width:640px){
+  .brand span{display:none}
+  .bar nav button,.bar nav a{font-size:15px;letter-spacing:.12em}
+  .stage,.pin{padding-right:56px;padding-top:84px;padding-bottom:92px}
+  #cis{height:auto;width:100%}
+  #orbits{width:min(80vw,36vh)}
+  #home .note{display:none}
+  .stage.tall{padding:0}
+  .wview{margin:6px 30px}
+}
+@media (prefers-reduced-motion:reduce){.tick span,#cis .k,.wb img,.morph img,.morph.live img+img{transition:none}}
+</style>
+</head>
+<body data-view="ascent">
+<div id="map" aria-hidden="true"></div>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<header class="bar">
+<button class="brand" type="button" data-go="home" aria-label="SPACEWARD. Home"><svg class="mark" viewBox="-116 -116 232 232" aria-hidden="true"><g transform="translate(0 5)"><path transform="translate(0 -48)" d="M 0 -58 Q 6.96 -6.96 58 0 Q 6.96 6.96 0 58 Q -6.96 6.96 -58 0 Q -6.96 -6.96 0 -58 Z" fill="currentColor"></path><path d="M -100 87 A 130 130 0 0 1 100 87" fill="none" stroke="currentColor" stroke-width="14"></path></g></svg><span>SPACEWARD.</span></button>
+<nav aria-label="Site">
+<button type="button" data-view-to="manifesto">Manifesto</button>
+<button type="button" data-view-to="shop">Shop</button>
+<a href="https://astronomics.substack.com/" target="_blank" rel="noopener">Astronomics</a>
+</nav>
+</header>
+
+<div id="sky" tabindex="-1">
+<main class="ascent">
+
+<section class="stage" id="home" data-name="Home" data-km="0">
+<div class="inner"><div class="copy">
+<h1>Expand<br>Spaceward.</h1>
+<p class="tag">The frontier did not close.<br>It moved up.</p>
+<div class="row">
+<button class="btn" type="button" data-go="cislunar">Launch &#8593;</button>
+<span class="note">This site only goes the way humanity does. Scroll up.</span>
+</div>
+</div><div class="art">
+<canvas id="orbits" role="img" aria-label="Earth with its traffic drawn around it: the International Space Station at 400 kilometres, many low-orbit constellation shells between 340 and 1,200, a dawn-dusk sun-synchronous ring for data centres, navigation satellites in medium orbit near 20,200, geostationary satellites at 35,786, and the Moon at 384,400 kilometres"></canvas>
+<span class="cap">Hover a ring to name it. Earth photograph: NASA. Spacing compressed, not to scale.</span>
+</div></div>
+</section>
+
+<section class="stage" id="moon" data-name="The Moon" data-km="384400">
+<div class="inner"><div class="copy">
+<div class="alt">384,400 km / The Moon</div>
+<h2>Settle the Moon</h2>
+<p><a class="il" href="https://astronomics.substack.com/" target="_blank" rel="noopener">Not flags and footprints. Towns, power, industry</a>, and people who stay.</p>
+<p>Three days away, with ice at the poles, sunlight on the crater rims, and a gravity well shallow enough to ship from. The first town off Earth goes here.</p>
+<p class="soon">Coming on Astronomics: <a href="https://astronomics.substack.com/" target="_blank" rel="noopener">&ldquo;This time, to stay&rdquo;: what NASA's Moon Base plan commits to</a> / <a href="https://astronomics.substack.com/" target="_blank" rel="noopener">After Ignition: the landers, rovers and contracts behind the base</a></p>
+</div><div class="art"><div class="morph m-moon"><img src="img/moon.jpg" alt="The Moon today"><img src="img/moon1.jpg" alt=""><img src="img/moon2.jpg" alt="The Moon with night falling and the lights of settlements across the dark side"></div><span class="cap">NASA photograph. The lights are an illustration.</span></div></div>
+</section>
+
+<section class="stage" id="cislunar" data-name="Cislunar space" data-km="450000">
+<div class="inner"><div class="copy">
+<div class="alt">Out to 450,000 km / Cislunar space</div>
+<h2 class="h2s">Build the space between</h2>
+<p>From low orbit to the far side of the Moon is one economy waiting for its infrastructure. Pick a piece below.</p>
+<p class="soon">Coming on Astronomics: <a href="https://astronomics.substack.com/" target="_blank" rel="noopener">Does it pencil? A propellant depot at L1</a> / <a href="https://astronomics.substack.com/" target="_blank" rel="noopener">Data centres in the dawn-dusk orbit: the arithmetic</a></p>
+</div><div class="art"><svg id="cis" viewBox="-70 -84 720 590" role="img" aria-label="Schematic of Earth-Moon space showing the five Lagrange points and where stations, data centres, tethers, depots, cyclers, a halo-orbit gateway, captured asteroids and O'Neill cylinders would sit"><defs><clipPath id="ce"><circle cx="250" cy="210" r="22"></circle></clipPath><clipPath id="cm"><circle cx="550" cy="210" r="11"></circle></clipPath></defs><circle cx="250" cy="210" r="300" fill="none" stroke="#5A6478" stroke-width="1" stroke-dasharray="2 6"></circle><path d="M 250 210 L 400.0 -49.8 L 550 210 L 400.0 469.8 Z" fill="none" stroke="#465066" stroke-width="1"></path><g class="lg"><path d="M 499.7 210.0 h 10 M 504.7 205.0 v 10" stroke="#F4F5F7" stroke-width="1.2"></path><text x="504.7" y="198.0" text-anchor="middle">L1</text></g><g class="lg"><path d="M 595.4 210.0 h 10 M 600.4 205.0 v 10" stroke="#F4F5F7" stroke-width="1.2"></path><text x="600.4" y="198.0" text-anchor="middle">L2</text></g><g class="lg"><path d="M -52.9 210.0 h 10 M -47.9 205.0 v 10" stroke="#F4F5F7" stroke-width="1.2"></path><text x="-47.9" y="198.0" text-anchor="middle">L3</text></g><g class="lg"><path d="M 395.0 -49.8 h 10 M 400.0 -54.8 v 10" stroke="#F4F5F7" stroke-width="1.2"></path><text x="414.0" y="-45.8" text-anchor="start">L4</text></g><g class="lg"><path d="M 395.0 469.8 h 10 M 400.0 464.8 v 10" stroke="#F4F5F7" stroke-width="1.2"></path><text x="414.0" y="473.8" text-anchor="start">L5</text></g><circle cx="250" cy="210" r="52" fill="none" stroke="#5A6478" stroke-width="1"></circle><text class="sm" x="250" y="278" text-anchor="middle">GEO</text><image href="img/earth.jpg" x="228" y="188" width="44" height="44" clip-path="url(#ce)" preserveAspectRatio="xMidYMid slice"></image><image href="img/moon.jpg" x="539" y="199" width="22" height="22" clip-path="url(#cm)"></image><text class="sm" x="250" y="146" text-anchor="middle">EARTH</text><text class="sm" x="550" y="154" text-anchor="middle">MOON</text><g class="k" data-k="stations"><circle cx="250" cy="210" r="30" fill="none" stroke="#F4F5F7" stroke-opacity="0.5" stroke-width="1"></circle><circle class="mv" data-c="250,210" data-r="30" data-a="0" data-w="0.9" r="3.4" fill="#F4F5F7"></circle><circle class="mv" data-c="250,210" data-r="30" data-a="2.2" data-w="0.9" r="3.4" fill="#F4F5F7"></circle><circle class="mv" data-c="250,210" data-r="30" data-a="4.1" data-w="0.9" r="3.4" fill="#F4F5F7"></circle></g><g class="k" data-k="data"><circle cx="250" cy="210" r="39" fill="none" stroke="#F4F5F7" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="1 3"></circle><rect class="mv" data-c="250,210" data-r="39" data-a="0.5" data-w="0.6" x="-2.8" y="-2.8" width="5.6" height="5.6" fill="#F4F5F7"></rect><rect class="mv" data-c="250,210" data-r="39" data-a="2.0" data-w="0.6" x="-2.8" y="-2.8" width="5.6" height="5.6" fill="#F4F5F7"></rect><rect class="mv" data-c="250,210" data-r="39" data-a="3.6" data-w="0.6" x="-2.8" y="-2.8" width="5.6" height="5.6" fill="#F4F5F7"></rect><rect class="mv" data-c="250,210" data-r="39" data-a="5.2" data-w="0.6" x="-2.8" y="-2.8" width="5.6" height="5.6" fill="#F4F5F7"></rect></g><g class="k" data-k="tether"><g class="mv spin" data-c="250,210" data-r="34" data-a="1.2" data-w="0.75"><line x1="-14" y1="0" x2="14" y2="0" stroke="#F4F5F7" stroke-width="1.6"></line><circle cx="14" cy="0" r="1.8" fill="#F4F5F7"></circle></g></g><g class="k" data-k="depot"><rect x="498.7" y="214.0" width="12" height="7" fill="none" stroke="#F4F5F7" stroke-width="1.4"></rect><circle class="pulse" cx="504.7" cy="217.5" r="1.6" fill="#F4F5F7"></circle></g><g class="k" data-k="cycler"><path id="cyc" d="M 300 180 C 400 110 570 140 584 210 C 592 272 400 310 300 240 C 268 218 268 202 300 180 Z" fill="none" stroke="#F4F5F7" stroke-opacity="0.55" stroke-width="1" stroke-dasharray="5 5"></path><circle class="along" data-p="cyc" data-w="0.035" r="3.2" fill="#F4F5F7"></circle></g><g class="k" data-k="gateway"><ellipse id="nrho" cx="572" cy="222" rx="13" ry="62" fill="none" stroke="#F4F5F7" stroke-opacity="0.55" stroke-width="1" transform="rotate(8 572 222)"></ellipse><circle class="mv" data-c="572,222" data-r="13" data-ry="62" data-a="0.4" data-w="0.35" r="3" fill="#F4F5F7"></circle></g><g class="k" data-k="mining"><circle cx="550" cy="210" r="46" fill="none" stroke="#F4F5F7" stroke-opacity="0.4" stroke-width="1" stroke-dasharray="2 4"></circle><path class="mv" data-c="550,210" data-r="46" data-a="3.6" data-w="0.16" d="M -5 -2 l 4 -3 l 5 1 l 2 4 l -3 4 l -6 0 z" fill="#8D95A3" stroke="#F4F5F7" stroke-width="0.8"></path></g><g class="k" data-k="oneill"><g transform="translate(374.0 -41.8) rotate(-24)"><rect x="-13" y="-4.5" width="26" height="9" rx="2" fill="#1C212B" stroke="#F4F5F7" stroke-width="1.3"></rect><line x1="-13" y1="0" x2="13" y2="0" stroke="#F4F5F7" stroke-opacity="0.5"></line></g><g transform="translate(374.0 461.8) rotate(-24)"><rect x="-13" y="-4.5" width="26" height="9" rx="2" fill="#1C212B" stroke="#F4F5F7" stroke-width="1.3"></rect><line x1="-13" y1="0" x2="13" y2="0" stroke="#F4F5F7" stroke-opacity="0.5"></line></g></g></svg><span class="cap">Schematic, not to scale. The Moon is held still; everything else moves around it.</span></div>
+<div class="copy" style="flex-basis:100%;gap:12px">
+<div class="chips" id="chips"><button class="cb" type="button" data-k="stations" aria-pressed="false">Commercial stations</button><button class="cb" type="button" data-k="data" aria-pressed="false">Orbital data centres</button><button class="cb" type="button" data-k="tether" aria-pressed="false">Orbital tethers</button><button class="cb" type="button" data-k="depot" aria-pressed="false">Propellant depots</button><button class="cb" type="button" data-k="cycler" aria-pressed="false">Cislunar cyclers</button><button class="cb" type="button" data-k="gateway" aria-pressed="false">Halo-orbit gateway</button><button class="cb" type="button" data-k="mining" aria-pressed="false">Asteroid mining</button><button class="cb" type="button" data-k="oneill" aria-pressed="false">O'Neill cylinders</button></div>
+<p class="desc" id="cdesc" style="max-width:60em">Five Lagrange points mark where Earth's pull and the Moon's balance. L1 and L2 are the gateways. L4 and L5 are stable enough to park a city.</p>
+</div></div>
+</section>
+
+<section class="stage" id="mars" data-name="Mars" data-km="225000000">
+<div class="inner"><div class="art"><div class="morph m-mars"><img src="img/mars.jpg" alt="Mars today"><img src="img/mars1.jpg" alt=""><img src="img/mars2.jpg" alt=""><img src="img/mars3.jpg" alt="Mars terraformed, with a northern ocean, green land, clouds and a blue atmosphere"></div><span class="cap">Built on NASA's Mars map. The later stages are an illustration.</span></div><div class="copy">
+<div class="alt">225,000,000 km / Mars</div>
+<h2>Terraform Mars</h2>
+<p>A second living world, built on purpose, over generations.</p>
+<p>A day almost the length of ours, water locked in the ground, and room for a whole biosphere. Warm it, thicken the air, and the northern basin fills.</p>
+<p class="soon">Coming on Astronomics: <a href="https://astronomics.substack.com/" target="_blank" rel="noopener">What terraforming Mars would cost, and who pays</a></p>
+</div></div>
+</section>
+
+<section class="stage" id="belt" data-name="The asteroid belt" data-km="414000000">
+<div class="inner"><div class="copy">
+<div class="alt">414,000,000 km / The asteroid belt</div>
+<h2 class="h2s">Work the belt</h2>
+<p>Water for propellant and metal for structure, already in space, with no planet's gravity to haul it out of.</p>
+<div class="stats">
+<div class="stat"><b>1.1&ndash;1.9M</b><span>asteroids wider than a kilometre, by NASA's estimate. Millions more are smaller.</span></div>
+<div class="stat"><b>1/3</b><span>of the belt's mass is one body, Ceres, and Ceres carries water ice.</span></div>
+<div class="stat"><b>1 rock</b><span>A 2021 study estimated that asteroid 1986 DA holds more iron, nickel, cobalt and platinum-group metal than Earth's known reserves.</span></div>
+</div>
+<p class="soon">Coming on Astronomics: <a href="https://astronomics.substack.com/" target="_blank" rel="noopener">Does it pencil? Mining 1986 DA</a></p>
+</div><div class="art"><div class="rocks"><img class="vesta" src="img/vesta.jpg" alt="Asteroid Vesta" width="1200" height="1112"><img class="bennu" src="img/bennu.jpg" alt="Asteroid Bennu" width="900" height="1003"></div><span class="cap">4 Vesta (main belt) and 101955 Bennu (near-Earth), rendered from NASA shape models. Not to scale.</span></div></div>
+</section>
+
+<section class="stage" id="system" data-name="The Solar System" data-km="4500000000">
+<div class="inner"><div class="copy" style="flex-basis:100%">
+<div class="alt">Out to 5,900,000,000 km / The Solar System</div>
+<h2 class="h2s">Inhabit the Solar System</h2>
+<div class="worlds" id="worlds"><button class="wb" type="button" data-w="mercury" aria-pressed="false"><img src="img/mercury.jpg" alt=""><span>Mercury</span></button><button class="wb" type="button" data-w="venus" aria-pressed="false"><img src="img/venus.jpg" alt=""><span>Venus</span></button><button class="wb" type="button" data-w="earth" aria-pressed="false"><img src="img/earth.jpg" alt=""><span>Earth</span></button><button class="wb" type="button" data-w="mars" aria-pressed="false"><img src="img/mars.jpg" alt=""><span>Mars</span></button><button class="wb" type="button" data-w="jupiter" aria-pressed="false"><img src="img/jupiter.jpg" alt=""><span>Jupiter</span></button><button class="wb" type="button" data-w="saturn" aria-pressed="false"><img src="img/saturn.jpg" alt=""><span>Saturn</span></button><button class="wb" type="button" data-w="uranus" aria-pressed="false"><img src="img/uranus.jpg" alt=""><span>Uranus</span></button><button class="wb" type="button" data-w="neptune" aria-pressed="false"><img src="img/neptune.jpg" alt=""><span>Neptune</span></button><button class="wb" type="button" data-w="pluto" aria-pressed="false"><img src="img/pluto.jpg" alt=""><span>Pluto</span></button></div>
+<div class="wdetail">
+<div class="wview" id="wview"></div>
+<div class="wtext"><h3 id="wname"></h3><p id="wtext"></p></div>
+</div>
+<p class="soon">Coming on Astronomics: <a href="https://astronomics.substack.com/" target="_blank" rel="noopener">Helium-3 from Uranus: the longest supply chain</a></p>
+<span class="cap" style="text-align:left">Earth is a NASA photograph. The others are built from NASA maps; Mercury and Uranus are stand-ins.</span>
+</div></div>
+</section>
+
+<section class="stage" id="beyond" data-name="The heliopause" data-km="18000000000">
+<div class="inner"><div class="copy">
+<div class="alt">18,000,000,000 km / The heliopause</div>
+<h2>Keep going.</h2>
+<p>Spaceward is the banner. Astronomics is where the numbers get worked: space economics and cislunar strategy, one architecture at a time.</p>
+<div class="row">
+<a class="btn" href="https://astronomics.substack.com/" target="_blank" rel="noopener">Read Astronomics</a>
+<button class="btn line" type="button" data-view-to="manifesto">Manifesto</button>
+<button class="btn line" type="button" data-view-to="shop">Shop</button>
+</div>
+<footer>SPACEWARD. / Imagery: NASA</footer>
+</div></div>
+</section>
+
+</main>
+</div>
+
+<div id="manifesto" class="page" tabindex="-1">
+<div class="wrap">
+<div class="copy" style="flex:none">
+<div class="alt">Manifesto</div>
+<h2>The frontier did not close. It moved up.</h2>
+</div>
+<div class="essay">
+<p class="lede">Westward was a compass heading. For three hundred years Americans followed it, and it made the country what it is: restless, inventive, unwilling to believe the map was finished.</p>
+<p>Then the map was finished.</p>
+<p>The drive that filled it did not go anywhere. A people built by a frontier does not stop needing one. For a century that energy has had nowhere to point.</p>
+<p>There is one heading left, and it is not on the compass.</p>
+<h3>This frontier is empty</h3>
+<p>No one lives there. Nothing has to be taken from anyone. The only thing in the way is distance, and distance is an engineering problem.</p>
+<h3>It is also rich</h3>
+<p>Sunlight that never sets. Water ice at the lunar poles. Single asteroids with metal to rival the world's reserves. Room for more people, more industry and more life than Earth could ever hold.</p>
+<h3>What we are for</h3>
+<ol class="tenets">
+<li><b>Settle the Moon.</b> Not flags and footprints. Towns, power, industry, and people who stay.</li>
+<li><b>Terraform Mars.</b> A second living world, built on purpose, over generations.</li>
+<li><b>Inhabit the Solar System.</b> Every world and every orbit within reach, with people living there.</li>
+</ol>
+<h3>It has to pencil</h3>
+<p>Conviction without arithmetic is science fiction. Every step outward has to pay for the next one. That work happens at <a href="ASTRO" target="_blank" rel="noopener">Astronomics</a>, one architecture at a time. Spaceward is the flag it is done under.</p>
+<h3>Why now</h3>
+<p>The cost of reaching orbit has collapsed within a single generation. Rockets land and fly again. What was a government programme is turning into an economy, and economies grow.</p>
+<h3>Why us</h3>
+<p>Americans went west, then went to the Moon, then stopped. We are picking it back up: to stay, to build, and to bring along everyone who wants to come.</p>
+<p class="sign">Expand SPACEWARD.</p>
+</div>
+<div class="row"><button class="btn" type="button" data-go="home">Start the ascent</button><button class="btn line" type="button" data-view-to="shop">Shop</button></div>
+</div>
+</div>
+
+<div id="shop" class="page" tabindex="-1">
+<div class="wrap">
+<div class="copy" style="flex:none">
+<div class="alt">Shop</div>
+<h2>Gear for the heading.</h2>
+</div>
+<div class="items">
+<div class="item">
+<div class="tile"><svg class="prod" viewBox="150 120 600 450" role="img" aria-label="Black cap with SPACEWARD. embroidered in a white arch across the crown and a white braided cord along the brim">
+<ellipse cx="450" cy="548" rx="250" ry="14" fill="#000" opacity="0.5"></ellipse>
+<path d="M 228 436 Q 450 478 672 436 C 712 462 690 520 450 524 C 210 520 188 462 228 436 Z" fill="#1F232B"></path>
+<path d="M 216 462 Q 450 510 684 462" fill="none" stroke="#fff" stroke-opacity="0.14" stroke-width="1.5" stroke-dasharray="5 4"></path>
+<path d="M 238 432 C 226 290 310 150 450 150 C 590 150 674 290 662 432 Q 450 474 238 432 Z" fill="#1F232B" stroke="#fff" stroke-opacity="0.2" stroke-width="1.5"></path>
+<path d="M 450 152 C 360 190 292 310 284 441" fill="none" stroke="#fff" stroke-opacity="0.1" stroke-width="2"></path>
+<path d="M 450 152 C 540 190 608 310 616 441" fill="none" stroke="#fff" stroke-opacity="0.1" stroke-width="2"></path>
+<ellipse cx="450" cy="151" rx="17" ry="6" fill="#2C313B"></ellipse>
+<path d="M 232 437 Q 450 480 668 437" fill="none" stroke="#F4F5F7" stroke-width="9" stroke-linecap="round"></path>
+<path d="M 232 437 Q 450 480 668 437" fill="none" stroke="#000" stroke-opacity="0.3" stroke-width="9" stroke-dasharray="2 7"></path>
+<path d="M291.0936982160732 363.7530669946955 290.24476057209614 362.0287152682085Q290.1078351456482 361.75059402200094 290.20667221947997 361.4600613511421Q290.30550929331173 361.16952868028324 290.58363053951933 361.0326032538353L298.3710254333315 357.1986913132937Q298.6491466795391 357.06176588684576 298.9396793503979 357.1606029606776Q299.23021202125676 357.25944003450934 299.3671374477047 357.5375612807169L299.99699440936513 358.81691901327173Q300.6542364563151 360.1519009950681 301.6773065166467 360.61571200361914Q302.7003765769783 361.07952301217017 303.70161306332557 360.58659147695766Q304.70284954967286 360.09365994174516 304.97282976454096 359.0278040961545Q305.242809979409 357.96194825056386 304.6677231883277 356.79383901649203Q304.03786622666735 355.51448128393713 302.53000566246277 354.9783642081816Q301.0221450982582 354.4422471324261 296.9504173129226 353.7516960176444Q293.1833417804218 353.118477309429 290.6228908739402 352.4095089353125Q288.0624399674586 351.7005405611959 285.61921611009643 349.9663669300919Q283.1759922527343 348.2321932989879 281.64242747651764 345.117235341463Q280.0814776150114 341.94665313469665 280.2949522179284 338.8008664931856Q280.50842682084544 335.6550798516745 282.4377123636259 333.0466914039125Q284.36699790640637 330.43830295615055 287.70445286089733 328.79519783877555Q291.0975320646298 327.124707636111 294.35499424395505 327.2140952765625Q297.6124564232803 327.30348291701404 300.2495110743254 329.08044233337716Q302.88656572537053 330.85740174974023 304.4749006721663 334.08360820574813L305.1321427191163 335.4185901875445Q305.26906814556423 335.69671143375206 305.1702310717325 335.9872441046109Q305.0713939979007 336.27777677546976 304.7932727516931 336.4147022019177L297.06150210712246 340.2212290571697Q296.78338086091486 340.3581544836176 296.492848190056 340.25931740978587Q296.20231551919716 340.1604803359541 296.0653900927493 339.8823590897465L295.2986077046409 338.3248801109841Q294.6961358282701 337.10114662767074 293.64525364331774 336.65102816176454Q292.5943714583654 336.2009096958583 291.5931349720181 336.6938412310708Q290.59189848567087 337.1867727662833 290.3634229380683 338.26674819384993Q290.1349473904658 339.3467236214166 290.76480435212625 340.6260813539714Q291.4494314843658 342.0166875850093 292.9427454272632 342.6636261199167Q294.43605937016065 343.31056465482413 298.36915357172364 344.0002616909434Q303.1605802825495 344.8893410320509 305.7347237316759 345.62612153078817Q308.30886718080234 346.3629020295255 310.2822741949298 347.84463134238683Q312.2556812090573 349.32636065524815 313.5701653029573 351.9963246188409Q316.0348229790198 357.0025070505773 314.34346241722204 361.4978495792391Q312.6521018554243 365.9931921079008 307.53467092520486 368.51261995454246Q304.14159172147237 370.18311015720707 300.93932675205747 370.1356542233523Q297.7370617826425 370.0881982894974 295.1547773021766 368.4224873716174Q292.5724928217107 366.75677645373736 291.0936982160732 363.7530669946955Z M338.0637538098235 322.54267858714593Q339.4898298942938 326.1790425680067 339.20862450480354 329.45269458508517Q338.9274191153132 332.7263466021636 337.03399573466584 335.2004217630303Q335.14057235401845 337.67449692389704 331.90824881547553 338.9421201100929L328.1564447082382 340.4134684512131Q327.8678443922969 340.5266490928377 327.98102503392147 340.81524940877904L333.7306016284527 355.47614545859875Q333.8437822700773 355.7647457745401 333.7209884980556 356.04599244483626Q333.5981947260339 356.32723911513244 333.3095944100926 356.4404197567571L325.1133454373587 359.6547499788965Q324.8247451214174 359.76793062052116 324.5434984511212 359.6451368484995Q324.26225178082507 359.5223430764778 324.14907113920043 359.2337427605365L308.8470483915505 320.21498004526825Q308.7338677499259 319.9263797293269 308.85666152194756 319.64513305903074Q308.9794552939693 319.36388638873456 309.2680556099106 319.2507057471099L321.73558925857617 314.36130202892593Q325.0833529234956 313.0484065860802 328.274389264309 313.62840061329837Q331.4654256051223 314.2083946405165 334.0402336010752 316.52849459180663Q336.6150415970282 318.84859454309685 338.0637538098235 322.54267858714593ZM328.5727678338709 326.5311561418367Q327.6899588291988 324.2800736774943 326.262219091769 323.441448467902Q324.8344793543391 322.6028232583096 323.2760376482559 323.2139987230826L321.65987587898445 323.8478103161806Q321.3712755630431 323.96099095780517 321.48445620466777 324.24959127374655L324.8572393250817 332.84988068879824Q324.97041996670634 333.13848100473956 325.25902028264767 333.025300363115L326.8751820519191 332.391488770017Q328.43362375800234 331.780313305244 328.9219641699477 330.2235558925233Q329.4103045818932 328.66679847980254 328.5727678338709 326.5311561418367Z M371.91936355715234 342.7649544870958 369.6760827629628 337.79378125752305Q369.59173268729074 337.49547761233225 369.2337683130618 337.5966977031387L362.79040957694036 339.41865933765473Q362.4324452027114 339.51987942846114 362.5167952783834 339.81818307365194L363.268557846619 345.21110668158485Q363.3944672840593 345.88424471613905 362.6785385356014 346.0866848977519L354.2067150121825 348.4822270468378Q353.43112553468643 348.7015372435851 353.3907975250536 347.87533772068576L350.63747300472744 305.0985326963999Q350.5712242963253 304.40852464671127 351.22749231574505 304.22295448023283L360.9521911489653 301.4731420133244Q361.6084591683851 301.28757184684594 361.91335079293987 301.91009983599685L381.90862600529454 339.81147048643896L382.0357667948703 340.0332433874572Q382.18759693108 340.57018994880065 381.53132891166024 340.75576011527914L372.8805232011269 343.20191230976826Q372.16459445266895 343.40435249138113 371.91936355715234 342.7649544870958ZM361.82426222049946 331.444685718082 365.8215310660562 330.3143947040767Q366.0601739822089 330.246914643539 365.97582390653685 329.9486109983482L359.9816742105181 316.9532853224862Q359.85453342094235 316.731512421468 359.735211962866 316.7652524517368Q359.61589050478966 316.7989924820056 359.62370983628915 317.05450541329265L361.50126922867474 331.2138621334288Q361.5856193043468 331.5121657786196 361.82426222049946 331.444685718082Z M385.57314818151724 327.38402067599753 382.36155675590095 308.62292165395445Q381.3782030294907 302.8784809110487 384.28616757622547 298.92108300397217Q387.1941321229602 294.9636850968956 392.99968393759895 293.96987016062997Q398.80523575223765 292.97605522436436 402.89448891893596 295.7356446029944Q406.9837420856343 298.4952339816245 407.9670958120445 304.23967472453023L408.0612467007433 304.78967437012756Q408.11355275002046 305.0952297287928 407.93627823344883 305.3457327143524Q407.7590037168772 305.59623569991203 407.453448358212 305.6485417491892L398.8384434312529 307.50069997905814Q398.1051105704565 307.62623449732325 397.97957605219136 306.8929016365268L397.6971233860948 305.2429026997347Q397.4565155594199 303.83734804987483 396.5819563655752 303.13788309974393Q395.70739717173046 302.438418149613 394.48517573706965 302.64764234672157Q393.3240653741419 302.8464053339747 392.7319588463937 303.79693932063583Q392.1398523186455 304.747473307297 392.38046014532034 306.15302795715695L395.8640430271778 326.5030148442591Q396.0941896439972 327.84745842238596 396.968748837842 328.54692337251686Q397.8433080316867 329.24638832264776 399.00441839461445 329.0476253353946Q400.22663982927526 328.8384011382861 400.81874635702343 327.88786715162496Q401.41085288477166 326.9373331649638 401.18070626795225 325.5928895868369L400.8773311821448 323.8206685065787Q400.82502513286767 323.51511314791355 401.00229964943935 323.2646101623539Q401.179574166011 323.01410717679425 401.48512952467615 322.96180112751716L410.22566896990037 321.84297575844465Q410.53122432856554 321.7906697091675 410.7817273141252 321.96794422573913Q411.0322302996848 322.14521874231076 411.08453634896193 322.450774100976L411.1786872376608 323.0007737465733Q412.15157975421556 328.68410341774603 409.22352088146977 332.7078430014833Q406.2954620087239 336.7315825852206 400.4899101940852 337.7253975214863Q394.68435837944645 338.7192124577519 390.61519953875927 335.89328140246107Q386.54604069807203 333.06735034717025 385.57314818151724 327.38402067599753Z M440.68913068876816 298.3351427868654 428.2525396200172 299.13053362705875Q427.9431716829836 299.1503194688546 427.9629575247794 299.4596874058882L428.46156073803496 307.2557594191351Q428.4813465798308 307.5651273561687 428.79071451686445 307.54534151437286L435.5968091316038 307.1100529948641Q435.90617706863736 307.0902671530682 436.136584713818 307.29297461973465Q436.36699235899863 307.4956820864011 436.3867782007945 307.80505002343466L436.8576812355358 315.1680069248345Q436.8774670773317 315.4773748618681 436.6747596106652 315.7077825070487Q436.4720521439988 315.93819015222937 436.1626842069652 315.9579759940252L429.3565895922259 316.393264513534Q429.04722165519223 316.41305035532986 429.0670074969881 316.72241829236344L429.5695678786028 324.580363893017Q429.58935372039866 324.88973183005066 429.89872165743225 324.8699459882548L442.33531272618325 324.07455514806145Q442.64468066321683 324.0547693062656 442.8750883083975 324.257476772932Q443.1054959535781 324.46018423959845 443.12528179537395 324.7695521766321L443.5922276617561 332.0706354906252Q443.61201350355196 332.3800034276588 443.40930603688554 332.6104110728394Q443.2065985702191 332.84081871802005 442.89723063318553 332.8606045598159L420.6227391667658 334.28518516911737Q420.31337122973224 334.3049710109132 420.08296358455163 334.1022635442468Q419.852555939371 333.89955607758037 419.8327700975751 333.5901881405468L417.15772428677565 291.7636430536032Q417.1379384449798 291.4542751165696 417.3406459116462 291.223867471389Q417.54335337831264 290.9934598262083 417.85272131534623 290.97367398441247L440.12721278176593 289.549093375111Q440.4365807187995 289.52930753331515 440.6669883639801 289.7320149999816Q440.89739600916073 289.934722466648 440.91718185095664 290.2440904036816L441.3841277173388 297.5451737176747Q441.40391355913465 297.8545416547083 441.2012060924682 298.08494929988893Q440.9984986258018 298.31535694506954 440.68913068876816 298.3351427868654Z M457.6244469686355 332.15327620655967 452.091374308221 289.7610661328377 452.0465563208625 289.50939303533Q452.084886340431 288.9527110708297 452.76527540815357 288.9995588725245L461.8577474949913 289.6256158588101Q462.599990114325 289.67672255156805 462.6149958642413 290.36137051035377L463.9972305269608 310.90283908826166Q464.04630740538244 311.0926586341582 464.1700145086047 311.1011764162846Q464.293721611827 311.1096941984109 464.36835183662765 310.92839243464067L468.55293681891084 290.7702240524178Q468.6616381722168 290.0940938757584 469.4038807915505 290.1452005685164L476.64074633005396 290.6434908229069Q477.38298894938765 290.6945975156649 477.397994699304 291.3792454744506L479.08949712007916 311.94200850767436Q479.1385739985008 312.1318280535709 479.2622811017231 312.14034583569725Q479.38598820494536 312.14886361782357 479.3987648781349 311.96330296299016L483.3359356539735 291.78809901651465Q483.4446370072795 291.11196883985525 484.12502607500204 291.15881664155006L493.0319375070063 291.7720969546461Q493.83603367795115 291.8274625384673 493.6569609909077 292.62304092728573L482.79884247436985 333.88664486926854Q482.69014112106385 334.56277504592794 481.94789850173015 334.5116683531699L474.0306438955041 333.9665302970846Q473.2884012761704 333.9154236043266 473.27339552625415 333.23077564554086L471.6372586893001 311.86391644137234Q471.58818181087844 311.6740968954757 471.4335479318506 311.6634496678178Q471.27891405282276 311.6528024401599 471.2661373796332 311.8383630949933L467.08804036514005 332.8048865392242Q466.97933901183404 333.4810167158836 466.2989499441115 333.4341689141887L458.38169533788545 332.8890308581034Q457.7013062701629 332.84218305640854 457.6244469686355 332.15327620655967Z M514.6186927271575 339.4610089076186 514.9233654516207 334.0156396335502Q514.9862346216848 333.71208162022253 514.6219650056917 333.6366386161456L508.0651119178136 332.27866454276113Q507.7008423018204 332.2032215386842 507.63797313175627 332.5067795520119L505.81551034065455 337.63780297575977Q505.616486563848 338.2930567710679 504.8879473318616 338.1421707629141L496.2668997533553 336.3566863330937Q495.4776489187033 336.19322649092703 495.8232435688666 335.44169715831356L513.1263377480353 296.22385968826916Q513.3860731275074 295.5811797269739 514.0539007568283 295.7194919011149L523.9498919913109 297.76902684520445Q524.6177196206318 297.90733901934544 524.6008306518219 298.600314316692L524.8433896429933 341.45198981644114L524.8538059096077 341.70741006111615Q524.7406414034922 342.253814485106 524.0728137741713 342.1155023109649L515.2696313876685 340.2922963791062Q514.541092155682 340.1414103709523 514.6186927271575 339.4610089076186ZM510.8887947247652 324.75905608182876 514.9564721033562 325.60150296068764Q515.1993185140184 325.6517982967389 515.2621876840825 325.3482402834112L515.9434041430459 311.05333685120723Q515.9329878764316 310.7979166065323 515.8115646711005 310.7727689385066Q515.6901414657696 310.747621270481 515.5791345270527 310.9778938471303L510.7088174841672 324.40520273244977Q510.64594831410307 324.70876074577745 510.8887947247652 324.75905608182876Z M546.0528507019159 348.2213008409697 547.0331295261382 331.28735241106176Q547.0494863532532 331.0322437004956 546.8132327026298 330.95682346072476L545.9272815127919 330.6739975615839Q545.6319644495126 330.57972226187036 545.537689149799 330.87503932514966L540.5976634448062 346.34965344098504Q540.5033881450927 346.64497050426434 540.2306734909977 346.7856997387603Q539.9579588369027 346.9264289732563 539.6626417736234 346.8321536735427L531.2756371764912 344.15473516167646Q530.9803201132119 344.06045986196284 530.8395908787159 343.78774520786783Q530.6988616442198 343.51503055377276 530.7931369439335 343.21971349049346L543.5391574652123 303.29284653513196Q543.6334327649259 302.99752947185266 543.906147419021 302.85680023735665Q544.178862073116 302.7160710028607 544.4741791363953 302.81034630257426L557.1728128574052 306.8641841902591Q560.5984907914451 307.95777766693686 562.737830212534 310.43049921239543Q564.877169633623 312.903220757854 565.3908977765269 316.2888086529157Q565.9046259194308 319.67439654797744 564.7167571430394 323.39539154529666Q563.6608737862471 326.7029426540248 561.6110236593508 328.94473578838483Q559.5611735324547 331.18652892274486 556.8667406457345 332.08360384657243Q556.72975876048 332.10495713934284 556.64241275791 332.1746971983839Q556.5550667553401 332.244437257425 556.5764200481105 332.3814191426794L556.1690510931829 351.1904073806087L556.152694266068 351.44551609117485Q555.9641436666408 352.03615021773345 555.3144461274263 351.82874455836355L546.6911878796707 349.0759058067264Q546.0414903404562 348.8685001473565 546.0528507019159 348.2213008409697ZM550.7982508738179 314.3963471941646 548.1208323619517 322.7833517912968Q548.026557062238 323.0786688545761 548.3218741255173 323.17294415428967L549.9756496798814 323.70088583268586Q551.5703618215897 324.20997245113927 552.8924776229378 323.33038515710564Q554.214593424286 322.45079786307195 554.8745205222812 320.3835784201168Q555.5721577401619 318.19823215185 555.0042443365226 316.7152829396492Q554.4363309328832 315.2323337274485 552.8416187911749 314.7232471089951L551.1878432368107 314.1953054305989Q550.8925261735315 314.1010301308853 550.7982508738179 314.3963471941646Z M562.0193388160521 353.5796294210677 578.4250230290203 315.01190626420544Q578.5463668471635 314.7266420396724 578.830992477037 314.6118977551996Q579.1156181069103 314.49715347072674 579.4008823314433 314.61849728887L590.2979757086041 319.2538311419424Q595.7750488196378 321.5836324502929 597.7736005882736 326.0720743657111Q599.7721523569093 330.5605162811293 597.6122323939593 335.6382194778168L590.185990723592 353.0963900192367Q588.0260707606421 358.1740932159242 583.4064925201121 359.8473585504189Q578.7869142795821 361.52062388491356 573.3098411685484 359.19082257656305L562.4127477913876 354.5554887234907Q562.1274835668546 354.43414490534747 562.0127392823817 354.14951927547406Q561.897994997909 353.8648936456007 562.0193388160521 353.5796294210677ZM574.9303145668056 350.3127181637089 576.5520629878191 350.9351907004045Q577.7744414944864 351.3877818916996 578.9978846866802 350.7291197966352Q580.2213278788739 350.0704577015708 580.9821748690115 348.440193962908L587.8745037395483 332.23718600943334Q588.6025666484079 330.5256006622353 588.2406645650312 329.1588867631154Q587.8787624816545 327.79217286399546 586.5665470488027 327.23399130053645L585.0261202363245 326.57873468256287Q584.7408560117914 326.4573908644196 584.6195121936482 326.74265508895263L574.7663941604159 349.9061101210326Q574.6450503422726 350.19137434556563 574.9303145668056 350.3127181637089Z M593.712778665013 362.94089581981996Q594.8006201660954 360.78142253484447 596.826653281682 360.1359035075908Q598.8526863972686 359.49038448033707 600.956788572373 360.5503326095968Q603.0608907474773 361.6102807388566 603.7203564606423 363.6086282995076Q604.3798221738073 365.60697586015857 603.2919806727249 367.76644914513406Q602.2320325434652 369.8705513202384 600.1920527419672 370.5437559024277Q598.1520729404695 371.21696048461695 596.1033418752362 370.1849057271798Q593.9992397001319 369.12495759792006 593.3260351179426 367.0849777964222Q592.6528305357533 365.0449979949243 593.712778665013 362.94089581981996Z" fill="#F4F5F7"></path>
+</svg></div>
+<h3>The Spaceward cap</h3>
+<p>Black crown, white arched embroidery, white braided cord along the brim. Snapback.</p>
+<a class="btn" href="https://www.printful.com/custom/products/all/classic-rope-cap-richardson-258" target="_blank" rel="noopener">Order the cap</a>
+<span class="note">Opens Printful's page for this cap style in a new tab.</span>
+</div>
+<div class="item">
+<div class="tile"><svg class="prod tee" viewBox="0 10 400 400" role="img" aria-label="Front of a dark grey T-shirt with the Rising Star logo on the left chest"><path d="M 130 30 Q 200 74 270 30 L 330 55 L 395 130 L 340 175 L 310 150 L 310 400 L 90 400 L 90 150 L 60 175 L 5 130 L 70 55 Z" fill="#3A3D44" stroke="#fff" stroke-opacity="0.16" stroke-width="1.5" stroke-linejoin="round"></path><path d="M 130 30 Q 200 74 270 30" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="5"></path><g transform="translate(252 128) scale(0.15)" color="#F4F5F7"><g transform="translate(0 5)"><path transform="translate(0 -48)" d="M 0 -58 Q 6.96 -6.96 58 0 Q 6.96 6.96 0 58 Q -6.96 6.96 -58 0 Q -6.96 -6.96 0 -58 Z" fill="currentColor"></path><path d="M -100 87 A 130 130 0 0 1 100 87" fill="none" stroke="currentColor" stroke-width="14"></path></g></g></svg><svg class="prod tee" viewBox="0 10 400 400" role="img" aria-label="Back of a dark grey T-shirt with SPACEWARD. across the shoulders"><path d="M 130 30 Q 200 48 270 30 L 330 55 L 395 130 L 340 175 L 310 150 L 310 400 L 90 400 L 90 150 L 60 175 L 5 130 L 70 55 Z" fill="#3A3D44" stroke="#fff" stroke-opacity="0.16" stroke-width="1.5" stroke-linejoin="round"></path><path d="M 130 30 Q 200 48 270 30" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="5"></path><g transform="translate(151.9 128) scale(0.17)" fill="#F4F5F7"><path d="M2.6 -17.8V-20.900000000000002Q2.6 -21.400000000000002 2.95 -21.75Q3.3000000000000003 -22.1 3.8000000000000003 -22.1H17.8Q18.3 -22.1 18.65 -21.75Q19.0 -21.400000000000002 19.0 -20.900000000000002V-18.6Q19.0 -16.2 20.15 -14.8Q21.3 -13.4 23.1 -13.4Q24.900000000000002 -13.4 26.050000000000004 -14.75Q27.200000000000003 -16.1 27.200000000000003 -18.2Q27.200000000000003 -20.5 25.400000000000002 -22.35Q23.6 -24.200000000000003 18.2 -28.1Q13.200000000000001 -31.700000000000003 10.0 -34.55Q6.800000000000001 -37.4 4.5 -41.650000000000006Q2.2 -45.900000000000006 2.2 -51.5Q2.2 -57.2 4.75 -61.6Q7.300000000000001 -66.0 11.950000000000001 -68.4Q16.6 -70.8 22.6 -70.8Q28.700000000000003 -70.8 33.35 -68.35Q38.0 -65.9 40.55 -61.45Q43.1 -57.0 43.1 -51.2V-48.800000000000004Q43.1 -48.300000000000004 42.75 -47.95Q42.400000000000006 -47.6 41.900000000000006 -47.6H28.0Q27.5 -47.6 27.15 -47.95Q26.8 -48.300000000000004 26.8 -48.800000000000004V-51.6Q26.8 -53.800000000000004 25.6 -55.2Q24.400000000000002 -56.6 22.6 -56.6Q20.8 -56.6 19.700000000000003 -55.2Q18.6 -53.800000000000004 18.6 -51.5Q18.6 -49.0 20.3 -47.0Q22.0 -45.0 27.200000000000003 -41.2Q33.5 -36.5 36.7 -33.6Q39.900000000000006 -30.700000000000003 41.7 -27.150000000000002Q43.5 -23.6 43.5 -18.8Q43.5 -9.8 37.85 -4.5Q32.2 0.8 23.0 0.8Q16.900000000000002 0.8 12.3 -1.5500000000000003Q7.7 -3.9000000000000004 5.15 -8.15Q2.6 -12.4 2.6 -17.8Z M101.20000000000002 -48.1Q101.20000000000002 -41.800000000000004 98.85000000000001 -37.050000000000004Q96.5 -32.300000000000004 92.2 -29.700000000000003Q87.9 -27.1 82.30000000000001 -27.1H75.80000000000001Q75.30000000000001 -27.1 75.30000000000001 -26.6V-1.2000000000000002Q75.30000000000001 -0.7000000000000001 74.95000000000002 -0.35000000000000003Q74.60000000000001 0.0 74.10000000000001 0.0H59.900000000000006Q59.400000000000006 0.0 59.050000000000004 -0.35000000000000003Q58.7 -0.7000000000000001 58.7 -1.2000000000000002V-68.8Q58.7 -69.3 59.050000000000004 -69.65Q59.400000000000006 -70.0 59.900000000000006 -70.0H81.5Q87.30000000000001 -70.0 91.75000000000001 -67.25Q96.20000000000002 -64.5 98.70000000000002 -59.5Q101.20000000000002 -54.5 101.20000000000002 -48.1ZM84.60000000000001 -47.7Q84.60000000000001 -51.6 82.95000000000002 -53.7Q81.30000000000001 -55.800000000000004 78.60000000000001 -55.800000000000004H75.80000000000001Q75.30000000000001 -55.800000000000004 75.30000000000001 -55.300000000000004V-40.400000000000006Q75.30000000000001 -39.900000000000006 75.80000000000001 -39.900000000000006H78.60000000000001Q81.30000000000001 -39.900000000000006 82.95000000000002 -41.95Q84.60000000000001 -44.0 84.60000000000001 -47.7Z M145.3 -1.1 144.0 -9.8Q144.0 -10.3 143.4 -10.3H132.60000000000002Q132.0 -10.3 132.0 -9.8L130.8 -1.1Q130.70000000000002 0.0 129.5 0.0H115.30000000000001Q114.00000000000001 0.0 114.30000000000001 -1.3L128.8 -68.9Q129.0 -70.0 130.10000000000002 -70.0H146.4Q147.5 -70.0 147.70000000000002 -68.9L162.10000000000002 -1.3L162.20000000000002 -0.9Q162.20000000000002 0.0 161.10000000000002 0.0H146.60000000000002Q145.4 0.0 145.3 -1.1ZM134.60000000000002 -23.1H141.3Q141.70000000000002 -23.1 141.70000000000002 -23.6L138.10000000000002 -46.400000000000006Q138.0 -46.800000000000004 137.8 -46.800000000000004Q137.60000000000002 -46.800000000000004 137.5 -46.400000000000006L134.20000000000002 -23.6Q134.20000000000002 -23.1 134.60000000000002 -23.1Z M176.3 -19.700000000000003V-50.400000000000006Q176.3 -59.800000000000004 182.0 -65.3Q187.70000000000002 -70.8 197.20000000000002 -70.8Q206.70000000000002 -70.8 212.45000000000002 -65.3Q218.20000000000002 -59.800000000000004 218.20000000000002 -50.400000000000006V-49.5Q218.20000000000002 -49.0 217.85000000000002 -48.650000000000006Q217.50000000000003 -48.300000000000004 217.00000000000003 -48.300000000000004L202.8 -47.7Q201.60000000000002 -47.7 201.60000000000002 -48.900000000000006V-51.6Q201.60000000000002 -53.900000000000006 200.40000000000003 -55.25Q199.20000000000002 -56.6 197.20000000000002 -56.6Q195.3 -56.6 194.10000000000002 -55.25Q192.90000000000003 -53.900000000000006 192.90000000000003 -51.6V-18.3Q192.90000000000003 -16.1 194.10000000000002 -14.75Q195.3 -13.4 197.20000000000002 -13.4Q199.20000000000002 -13.4 200.40000000000003 -14.75Q201.60000000000002 -16.1 201.60000000000002 -18.3V-21.200000000000003Q201.60000000000002 -21.700000000000003 201.95000000000002 -22.050000000000004Q202.3 -22.400000000000002 202.8 -22.400000000000002L217.00000000000003 -21.8Q217.50000000000003 -21.8 217.85000000000002 -21.450000000000003Q218.20000000000002 -21.1 218.20000000000002 -20.6V-19.700000000000003Q218.20000000000002 -10.4 212.45000000000002 -4.8Q206.70000000000002 0.8 197.20000000000002 0.8Q187.70000000000002 0.8 182.0 -4.8Q176.3 -10.4 176.3 -19.700000000000003Z M271.3 -55.800000000000004H251.20000000000002Q250.70000000000002 -55.800000000000004 250.70000000000002 -55.300000000000004V-42.7Q250.70000000000002 -42.2 251.20000000000002 -42.2H262.20000000000005Q262.70000000000005 -42.2 263.05000000000007 -41.85Q263.40000000000003 -41.5 263.40000000000003 -41.0V-29.1Q263.40000000000003 -28.6 263.05000000000007 -28.25Q262.70000000000005 -27.900000000000002 262.20000000000005 -27.900000000000002H251.20000000000002Q250.70000000000002 -27.900000000000002 250.70000000000002 -27.400000000000002V-14.700000000000001Q250.70000000000002 -14.200000000000001 251.20000000000002 -14.200000000000001H271.3Q271.8 -14.200000000000001 272.15 -13.850000000000001Q272.5 -13.5 272.5 -13.0V-1.2000000000000002Q272.5 -0.7000000000000001 272.15 -0.35000000000000003Q271.8 0.0 271.3 0.0H235.3Q234.8 0.0 234.45000000000002 -0.35000000000000003Q234.10000000000002 -0.7000000000000001 234.10000000000002 -1.2000000000000002V-68.8Q234.10000000000002 -69.3 234.45000000000002 -69.65Q234.8 -70.0 235.3 -70.0H271.3Q271.8 -70.0 272.15 -69.65Q272.5 -69.3 272.5 -68.8V-57.0Q272.5 -56.5 272.15 -56.150000000000006Q271.8 -55.800000000000004 271.3 -55.800000000000004Z M300.1 -1.1 286.50000000000006 -68.7 286.40000000000003 -69.10000000000001Q286.40000000000003 -70.0 287.50000000000006 -70.0H302.20000000000005Q303.40000000000003 -70.0 303.50000000000006 -68.9L308.00000000000006 -36.0Q308.1 -35.7 308.30000000000007 -35.7Q308.50000000000006 -35.7 308.6 -36.0L313.1 -68.9Q313.20000000000005 -70.0 314.40000000000003 -70.0H326.1Q327.30000000000007 -70.0 327.40000000000003 -68.9L332.40000000000003 -36.0Q332.50000000000006 -35.7 332.70000000000005 -35.7Q332.90000000000003 -35.7 332.90000000000003 -36.0L337.00000000000006 -68.9Q337.1 -70.0 338.20000000000005 -70.0H352.6Q353.90000000000003 -70.0 353.70000000000005 -68.7L340.80000000000007 -1.1Q340.70000000000005 0.0 339.50000000000006 0.0H326.70000000000005Q325.50000000000006 0.0 325.40000000000003 -1.1L320.40000000000003 -35.300000000000004Q320.30000000000007 -35.6 320.05000000000007 -35.6Q319.80000000000007 -35.6 319.80000000000007 -35.300000000000004L315.40000000000003 -1.1Q315.30000000000007 0.0 314.20000000000005 0.0H301.40000000000003Q300.30000000000007 0.0 300.1 -1.1Z M397.90000000000003 -1.1 396.6 -9.8Q396.6 -10.3 396.00000000000006 -10.3H385.20000000000005Q384.6 -10.3 384.6 -9.8L383.40000000000003 -1.1Q383.3 0.0 382.1 0.0H367.90000000000003Q366.6 0.0 366.90000000000003 -1.3L381.40000000000003 -68.9Q381.6 -70.0 382.70000000000005 -70.0H399.00000000000006Q400.1 -70.0 400.3 -68.9L414.70000000000005 -1.3L414.80000000000007 -0.9Q414.80000000000007 0.0 413.70000000000005 0.0H399.20000000000005Q398.00000000000006 0.0 397.90000000000003 -1.1ZM387.20000000000005 -23.1H393.90000000000003Q394.3 -23.1 394.3 -23.6L390.70000000000005 -46.400000000000006Q390.6 -46.800000000000004 390.40000000000003 -46.800000000000004Q390.20000000000005 -46.800000000000004 390.1 -46.400000000000006L386.8 -23.6Q386.8 -23.1 387.20000000000005 -23.1Z M455.6 -1.0 448.80000000000007 -27.5Q448.70000000000005 -27.900000000000002 448.30000000000007 -27.900000000000002H446.80000000000007Q446.30000000000007 -27.900000000000002 446.30000000000007 -27.400000000000002V-1.2000000000000002Q446.30000000000007 -0.7000000000000001 445.95000000000005 -0.35000000000000003Q445.6 0.0 445.1 0.0H430.90000000000003Q430.40000000000003 0.0 430.05000000000007 -0.35000000000000003Q429.70000000000005 -0.7000000000000001 429.70000000000005 -1.2000000000000002V-68.8Q429.70000000000005 -69.3 430.05000000000007 -69.65Q430.40000000000003 -70.0 430.90000000000003 -70.0H452.40000000000003Q458.20000000000005 -70.0 462.70000000000005 -67.25Q467.20000000000005 -64.5 469.65000000000003 -59.55Q472.1 -54.6 472.1 -48.300000000000004Q472.1 -42.7 470.05000000000007 -38.25Q468.00000000000006 -33.800000000000004 464.30000000000007 -31.1Q464.1 -31.0 464.0 -30.85Q463.90000000000003 -30.700000000000003 464.00000000000006 -30.5L472.6 -1.4000000000000001L472.70000000000005 -1.0Q472.70000000000005 0.0 471.6 0.0H457.00000000000006Q455.90000000000003 0.0 455.6 -1.0ZM446.30000000000007 -55.300000000000004V-41.1Q446.30000000000007 -40.6 446.80000000000007 -40.6H449.6Q452.30000000000007 -40.6 453.9000000000001 -42.6Q455.50000000000006 -44.6 455.50000000000006 -48.1Q455.50000000000006 -51.800000000000004 453.9000000000001 -53.800000000000004Q452.30000000000007 -55.800000000000004 449.6 -55.800000000000004H446.80000000000007Q446.30000000000007 -55.800000000000004 446.30000000000007 -55.300000000000004Z M487.80000000000007 -1.2000000000000002V-68.8Q487.80000000000007 -69.3 488.1500000000001 -69.65Q488.50000000000006 -70.0 489.00000000000006 -70.0H508.1000000000001Q517.7 -70.0 523.5 -64.6Q529.3000000000001 -59.2 529.3000000000001 -50.300000000000004V-19.700000000000003Q529.3000000000001 -10.8 523.5 -5.4Q517.7 0.0 508.1000000000001 0.0H489.00000000000006Q488.50000000000006 0.0 488.1500000000001 -0.35000000000000003Q487.80000000000007 -0.7000000000000001 487.80000000000007 -1.2000000000000002ZM504.9000000000001 -14.200000000000001 507.70000000000005 -14.3Q509.80000000000007 -14.4 511.20000000000005 -16.150000000000002Q512.6 -17.900000000000002 512.7 -20.8V-49.2Q512.7 -52.2 511.30000000000007 -54.0Q509.9000000000001 -55.800000000000004 507.6000000000001 -55.800000000000004H504.9000000000001Q504.4000000000001 -55.800000000000004 504.4000000000001 -55.300000000000004V-14.700000000000001Q504.4000000000001 -14.200000000000001 504.9000000000001 -14.200000000000001Z M545.4000000000001 -8.099999999999994Q545.4000000000001 -12.0 547.8500000000001 -14.399999999999999Q550.3000000000001 -16.799999999999997 554.1 -16.799999999999997Q557.9000000000001 -16.799999999999997 560.3000000000001 -14.399999999999999Q562.7 -12.0 562.7 -8.099999999999994Q562.7 -4.299999999999997 560.25 -1.8499999999999979Q557.8000000000001 0.6000000000000014 554.1 0.6000000000000014Q550.3000000000001 0.6000000000000014 547.8500000000001 -1.8499999999999979Q545.4000000000001 -4.299999999999997 545.4000000000001 -8.099999999999994Z"></path></g></svg></div>
+<h3>The Spaceward tee</h3>
+<p>Dark grey. Rising Star on the left chest. SPACEWARD. across the back.</p>
+<a class="btn" href="https://www.printful.com/custom/mens/t-shirts/unisex-premium-t-shirt-bella-canvas-3001" target="_blank" rel="noopener">Order the tee</a>
+<span class="note">Opens Printful's page for this shirt style in a new tab.</span>
+</div>
+</div>
+<div><button class="btn line" type="button" data-go="home">Back to the ascent</button></div>
+</div>
+</div>
+
+<nav class="rail" aria-label="Altitude">
+<div class="ship" id="ship"><svg viewBox="-60 -60 120 120" aria-hidden="true"><path d="M 0 -58 Q 6.96 -6.96 58 0 Q 6.96 6.96 0 58 Q -6.96 6.96 -58 0 Q -6.96 -6.96 0 -58 Z" fill="currentColor"></path></svg><div class="plume"></div></div>
+</nav>
+<div class="hud">
+<span class="v" id="altv">0 km</span>
+<span class="s" id="alts">Home</span>
+</div>
+
+<script>
+(function(){
+var WORLDS=[{"id": "mercury", "name": "Mercury", "img": "img/mercury.jpg", "text": "Ice sits in permanently shadowed craters at the poles, a short hop from sunlight up to ten times stronger than Earth's. A power station and a metals mine in one.", "marks": [[50, 7, "Polar ice"], [20, 52, "Solar power"]]}, {"id": "venus", "name": "Venus", "img": "img/venus.jpg", "text": "Fifty kilometres above the surface, pressure and temperature are close to Earth's. Cities could float at the cloud tops, held up by the air people breathe.", "marks": [[50, 2, "Cloud cities, 50 km up"]]}, {"id": "earth", "name": "Earth", "img": "img/earth.jpg", "text": "Home, and the reason for all of it. Every factory and mine moved off-world is weight taken off the one living planet we have.", "marks": [[50, 50, "Home"]]}, {"id": "mars", "name": "Mars", "img": "img/mars.jpg", "text": "The most Earthlike world within reach: a day of 24.6 hours, water ice at the poles and in the ground, and carbon dioxide to thicken into air.", "marks": [[50, 5, "Polar ice"], [56, 52, "Valles Marineris"]]}, {"id": "jupiter", "name": "Jupiter", "img": "img/jupiter.jpg", "text": "Its moon Europa hides an ocean thought to hold about twice the water of all Earth's seas, the best place we know to look for other life. Callisto sits outside the worst radiation and could host a base.", "marks": [[103, 30, "Europa"], [-3, 72, "Callisto"]]}, {"id": "saturn", "name": "Saturn", "img": "img/saturn.jpg", "text": "Titan has a thick atmosphere and seas of liquid methane: a whole world of fuel and feedstock. Enceladus sprays its ocean into space, ready to sample.", "marks": [[90, 22, "Titan"], [8, 80, "Enceladus"], [50, 56, "Ring ice"]]}, {"id": "uranus", "name": "Uranus", "img": "img/uranus.jpg", "text": "Its atmosphere carries helium-3, a fusion fuel, in a gravity well shallow enough to climb back out of. The long-range fuel depot.", "marks": [[50, 50, "Helium-3"]]}, {"id": "neptune", "name": "Neptune", "img": "img/neptune.jpg", "text": "The outermost giant. Its moon Triton is a captured world with nitrogen geysers, and the last harbour before the dark.", "marks": [[102, 28, "Triton"]]}, {"id": "pluto", "name": "Pluto", "img": "img/pluto.jpg", "text": "Mountains of water ice and plains of frozen nitrogen. The front door to the Kuiper belt and the icy worlds beyond it.", "marks": [[58, 62, "Nitrogen ice plains"]]}], CIS={"stations": "Labs, factories and hotels in low orbit, taking over from the ISS.", "data": "Compute in near-constant sunlight, shedding heat straight to deep space.", "tether": "Rotating cables that catch a payload and sling it onward, trading momentum for propellant.", "depot": "Fuel stations at L1, the balance point between Earth and Moon.", "cycler": "Ships on repeating loops between Earth and Moon. Board, ride, step off.", "gateway": "A staging port in a halo orbit near the Moon, always in sight of Earth.", "mining": "Small asteroids towed into lunar orbit and taken apart for water and metal.", "oneill": "Spinning habitats kilometres long at the stable points L4 and L5, with land, weather and gravity inside."};
+var $=function(id){return document.getElementById(id);};
+var sky=$('sky'), rail=document.querySelector('.rail'), ship=$('ship'), altv=$('altv'), alts=$('alts'), map=$('map');
+var stages=[].slice.call(document.querySelectorAll('.stage'));
+var calm=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var navBtns=[].slice.call(document.querySelectorAll('.bar [data-view-to]'));
+function isAscent(){return document.body.getAttribute('data-view')==='ascent';}
+
+stages.forEach(function(s,i){
+  var b=document.createElement('button'); b.className='tick'; b.type='button'; b.setAttribute('data-go',s.id);
+  b.style.top=(100-100*i/(stages.length-1))+'%';
+  var l=document.createElement('span'); l.textContent=s.dataset.name; b.appendChild(l);
+  b.setAttribute('aria-label','Go to '+s.dataset.name);
+  rail.insertBefore(b,ship);
+});
+function setHash(h){try{if(h){location.hash=h;}else{history.replaceState(null,'',location.pathname+location.search);}}catch(e){}}
+function view(v,quiet){
+  document.body.setAttribute('data-view',v);
+  navBtns.forEach(function(b){if(b.getAttribute('data-view-to')===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
+  if(v==='ascent'){if(!quiet)setHash('');kick();loop();}
+  else{$(v).scrollTop=0;if(!quiet)setHash(v);}
+}
+function tall(s){return s.classList.contains('tall');}
+function anchor(s){return tall(s)?s.offsetTop+s.offsetHeight-sky.clientHeight/2:s.offsetTop+s.offsetHeight/2;}
+function hold(s){return tall(s)?s.offsetHeight-sky.clientHeight:0;}
+function go(id){
+  if(!isAscent())view('ascent');
+  var s=$(id); if(!s)return;
+  var top=s.id==='home'?(s.offsetHeight>sky.clientHeight?s.offsetTop:sky.scrollHeight):anchor(s)-sky.clientHeight/2;
+  sky.scrollTo({top:top,behavior:calm?'auto':'smooth'});
+}
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-go],[data-view-to]'); if(!t)return;
+  if(t.hasAttribute('data-view-to'))view(t.getAttribute('data-view-to')); else go(t.getAttribute('data-go'));
+});
+function fromHash(){var h=location.hash.replace('#','');view(h==='shop'||h==='manifesto'?h:'ascent',true);}
+window.addEventListener('hashchange',fromHash);
+
+/* moving stars over the star map */
+var cv=$('stars'), cx=cv.getContext('2d'), stars=[], W=0,H=0,dpr=1;
+function seed(){
+  dpr=Math.min(window.devicePixelRatio||1,2); W=cv.clientWidth; H=cv.clientHeight;
+  cv.width=W*dpr; cv.height=H*dpr; stars=[];
+  var n=Math.round(W*H/16000), r=12345;
+  function rnd(){r=(r*1664525+1013904223)%4294967296;return r/4294967296;}
+  for(var i=0;i<n;i++){stars.push({x:rnd()*W,y:rnd()*H,z:.2+rnd()*.8,s:.4+rnd()*1.1});}
+}
+var lastY=null, vel=0, climbed=0, running=false;
+function fmt(km){
+  if(km>=1e9)return (km/1e9).toFixed(km>=1e10?0:1)+' billion km';
+  if(km>=1e6)return Math.round(km/1e6).toLocaleString('en-US')+' million km';
+  if(km>=1000)return (Math.round(km/100)*100).toLocaleString('en-US')+' km';
+  return Math.round(km).toLocaleString('en-US')+' km';
+}
+function clamp(v){return Math.max(0,Math.min(1,v));}
+function morph(f){
+  stages.forEach(function(s,i){var m=s.querySelector('.morph'); if(m)m.classList.toggle('live',Math.abs(f-i)<.3);});
+}
+function frame(){
+  var y=sky.scrollTop, mid=y+sky.clientHeight/2;
+  if(lastY===null)lastY=y;
+  var dy=lastY-y; lastY=y; climbed+=dy; vel+=(dy-vel)*.25;
+  var f=0;
+  for(var i=0;i<stages.length-1;i++){
+    var A=anchor(stages[i]), a=A-hold(stages[i]), b=anchor(stages[i+1]);
+    if(mid<=A&&mid>=a){f=i;break;}
+    if(mid<a&&mid>=b){f=i+(a-mid)/(a-b);break;}
+    if(mid<b)f=i+1;
+  }
+  if(sky.scrollHeight-sky.clientHeight-y<2)f=0;
+  var i0=Math.min(Math.floor(f),stages.length-1), i1=Math.min(i0+1,stages.length-1), t=f-i0;
+  var k0=+stages[i0].dataset.km, k1=+stages[i1].dataset.km;
+  var km=Math.exp(Math.log(k0+1)+(Math.log(k1+1)-Math.log(k0+1))*t)-1;
+  var near=Math.round(f);
+  altv.textContent=fmt(Math.abs(f-near)<.04?+stages[near].dataset.km:km);
+  alts.textContent=stages[near].dataset.name;
+  ship.style.top=(100-100*f/(stages.length-1))+'%';
+  ship.style.setProperty('--burn',(calm?6:Math.max(6,Math.min(60,6+Math.abs(vel)*2)))+'px');
+  map.style.transform='translateY('+(22*f/(stages.length-1)).toFixed(2)+'%)';
+  morph(f);
+  cx.setTransform(dpr,0,0,dpr,0,0); cx.clearRect(0,0,W,H);
+  var streak=calm?0:Math.min(70,Math.abs(vel)*1.8);
+  cx.fillStyle='#F4F5F7';
+  for(var j=0;j<stars.length;j++){
+    var s=stars[j], sy=((s.y+climbed*s.z*.35)%H+H)%H;
+    cx.globalAlpha=.3+.6*s.z;
+    if(streak>3){cx.fillRect(s.x,sy-streak*s.z,s.s*.7,streak*s.z+s.s);}
+    else{cx.beginPath();cx.arc(s.x,sy,s.s*.55,0,6.283);cx.fill();}
+  }
+  cx.globalAlpha=1;
+  if(Math.abs(vel)>.05)requestAnimationFrame(frame); else {vel=0;running=false;}
+}
+function kick(){if(!running&&isAscent()){running=true;requestAnimationFrame(frame);}}
+sky.addEventListener('scroll',kick,{passive:true});
+
+/* home: Earth and its traffic. Orbits are drawn as tilted 3-D circles; names appear on hover. */
+var oc=$('orbits'), ox=oc.getContext('2d'), eImg=new Image(), mImg=new Image(); eImg.src='img/earth.jpg'; mImg.src='img/moon.jpg';
+var EL=Math.asin(.58), ROT=-.16, hot=null, ptr=null, tNow=0;
+var GROUPS={iss:'ISS · 400 km',leo:'LEO constellations · 340 to 1,200 km',sso:'Dawn-dusk sun-synchronous orbit · data centres',meo:'MEO navigation · about 20,200 km',geo:'GEO · 35,786 km',moon:'Moon · 384,400 km'};
+var ORB=[];
+(function(){
+  function add(g,r,i,node,n,size,sq){ORB.push({g:g,r:r,i:i*Math.PI/180,node:node*Math.PI/180,n:n,size:size,sq:sq,ph:ORB.length*1.7});}
+  add('iss',.235,51.6,40,1,2);
+  [0,60,120,180,240,300].forEach(function(nd){add('leo',.25,53,nd,30,.5);});
+  [20,110,200,290].forEach(function(nd){add('leo',.262,70,nd,26,.5);});
+  [45,135].forEach(function(nd){add('leo',.276,87,nd,24,.5);});
+  [0,90,180,270].forEach(function(nd){add('leo',.292,43,nd,22,.5);});
+  add('sso',.305,98,75,7,1.4,true);
+  [0,120,240].forEach(function(nd){add('meo',.47,55,nd,4,1.3);});
+  add('geo',.66,0,0,8,1.4);
+  add('moon',.93,5,200,1,0);
+})();
+var KW=(2*Math.PI/22)*Math.pow(.235,1.5), SEG=72;
+function drawOrbits(t){
+  tNow=t;
+  var w=oc.clientWidth, hh=oc.clientHeight; if(!w)return; var d=Math.min(window.devicePixelRatio||1,2);
+  if(oc.width!==Math.round(w*d)){oc.width=Math.round(w*d);oc.height=Math.round(hh*d);}
+  ox.setTransform(d,0,0,d,0,0); ox.clearRect(0,0,w,hh);
+  var c=w/2, cy=hh/2, S=w/2, rE=.2*S, cr=Math.cos(ROT), sr=Math.sin(ROT), se=Math.sin(EL), ce=Math.cos(EL);
+  function proj(o,a){
+    var x=Math.cos(a)*o.r, y=Math.sin(a)*o.r, y2=y*Math.cos(o.i), z=y*Math.sin(o.i);
+    var X=x*Math.cos(o.node)-y2*Math.sin(o.node), Y=x*Math.sin(o.node)+y2*Math.cos(o.node);
+    var sx=X, sy=Y*se-z*ce;
+    return [c+(sx*cr-sy*sr)*S, cy+(sx*sr+sy*cr)*S, Y*ce+z*se];
+  }
+  // which ring is the pointer on?
+  hot=null;
+  if(ptr){var best=13; ORB.forEach(function(o){for(var k=0;k<SEG;k++){var p=proj(o,k/SEG*6.2832), dd=Math.hypot(p[0]-ptr.x,p[1]-ptr.y); if(dd<best){best=dd;hot=o.g;}}});}
+  function pass(front){
+    ORB.forEach(function(o){
+      var on=hot===o.g, base=o.g==='leo'?.07:(o.g==='iss'||o.g==='sso'?.16:.2);
+      ox.strokeStyle='rgba(200,206,214,'+(on?.75:base)+')'; ox.lineWidth=on?1.2:1; ox.beginPath();
+      var prev=proj(o,0);
+      for(var k=1;k<=SEG;k++){var p=proj(o,k/SEG*6.2832); if(((prev[2]+p[2])/2>=0)===front){ox.moveTo(prev[0],prev[1]);ox.lineTo(p[0],p[1]);} prev=p;}
+      ox.stroke();
+      var wv=KW*Math.pow(o.r,-1.5);
+      for(var j=0;j<o.n;j++){
+        var q=proj(o,o.ph+j/o.n*6.2832+t*wv); if((q[2]>=0)!==front)continue;
+        if(o.g==='moon'){var mr=.05*S; ox.save(); ox.beginPath(); ox.arc(q[0],q[1],mr,0,6.2832); ox.clip(); if(mImg.complete&&mImg.naturalWidth)ox.drawImage(mImg,q[0]-mr*1.2,q[1]-mr*1.26,mr*2.52,mr*2.52); else{ox.fillStyle='#C9CED6';ox.fill();} ox.restore(); continue;}
+        ox.fillStyle='rgba(244,245,247,'+(on?1:(o.g==='leo'?.7:.9))+')';
+        if(o.sq){ox.fillRect(q[0]-o.size,q[1]-o.size,o.size*2,o.size*2);} else {ox.beginPath(); ox.arc(q[0],q[1],o.size,0,6.2832); ox.fill();}
+      }
+    });
+  }
+  pass(false);
+  ox.save(); ox.beginPath(); ox.arc(c,cy,rE,0,6.2832); ox.clip();
+  if(eImg.complete&&eImg.naturalWidth)ox.drawImage(eImg,c-rE*1.065,cy-rE*1.065,rE*2.13,rE*2.13); else{ox.fillStyle='#1F4E8C';ox.fill();}
+  ox.restore();
+  pass(true);
+  if(hot&&ptr){
+    var txt=GROUPS[hot].toUpperCase(); ox.font='700 '+Math.max(11,Math.round(w/40))+'px "Barlow Condensed","Arial Narrow",sans-serif'; ox.textBaseline='middle';
+    var tw=ox.measureText(txt).width, x=Math.min(Math.max(ptr.x-tw/2,6),w-tw-6), y=Math.max(ptr.y-22,12);
+    ox.fillStyle='rgba(7,8,11,.86)'; ox.fillRect(x-6,y-11,tw+12,22); ox.fillStyle='#F4F5F7'; ox.textAlign='left'; ox.fillText(txt,x,y);
+  }
+}
+function setPtr(e){var r=oc.getBoundingClientRect(); ptr={x:e.clientX-r.left,y:e.clientY-r.top}; if(calm)drawOrbits(tNow);}
+oc.addEventListener('pointermove',setPtr); oc.addEventListener('pointerdown',setPtr);
+oc.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'){ptr=null;if(calm)drawOrbits(tNow);}});
+/* cislunar map */
+var cis=$('cis'), movers=[].slice.call(cis.querySelectorAll('.mv')), along=[].slice.call(cis.querySelectorAll('.along'));
+function drawCis(t){
+  movers.forEach(function(m){
+    var c=m.getAttribute('data-c').split(','), r=+m.getAttribute('data-r'), ry=+(m.getAttribute('data-ry')||r), a=+m.getAttribute('data-a')+t*(+m.getAttribute('data-w'));
+    var x=+c[0]+Math.cos(a)*r, y=+c[1]+Math.sin(a)*ry;
+    m.setAttribute('transform','translate('+x.toFixed(1)+' '+y.toFixed(1)+')'+(m.classList.contains('spin')?' rotate('+((t*70)%360).toFixed(0)+')':''));
+  });
+  along.forEach(function(m){var p=$(m.getAttribute('data-p')), L=p.getTotalLength(), q=p.getPointAtLength(((t*(+m.getAttribute('data-w')))%1)*L); m.setAttribute('cx',q.x.toFixed(1)); m.setAttribute('cy',q.y.toFixed(1));});
+}
+function inView(el){var r=el.getBoundingClientRect();return r.bottom>0&&r.top<window.innerHeight&&r.width>0;}
+var looping=false, t0=performance.now();
+function tick(now){
+  if(!isAscent()){looping=false;return;}
+  var t=(now-t0)/1000;
+  if(inView(oc))drawOrbits(t);
+  if(inView(cis))drawCis(t);
+  if(calm){looping=false;return;}
+  requestAnimationFrame(tick);
+}
+function loop(){if(!looping){looping=true;requestAnimationFrame(tick);}}
+eImg.onload=mImg.onload=function(){if(calm)drawOrbits(0);};
+
+var chips=$('chips'), cdesc=$('cdesc');
+function pick(k){
+  cis.classList.add('dim');
+  [].forEach.call(cis.querySelectorAll('.k'),function(g){g.classList.toggle('hot',g.getAttribute('data-k')===k);});
+  [].forEach.call(chips.children,function(b){b.setAttribute('aria-pressed',b.getAttribute('data-k')===k?'true':'false');});
+  cdesc.textContent=CIS[k];
+}
+chips.addEventListener('click',function(e){var b=e.target.closest('.cb'); if(b)pick(b.getAttribute('data-k'));});
+chips.addEventListener('mouseover',function(e){var b=e.target.closest('.cb'); if(b)pick(b.getAttribute('data-k'));});
+chips.addEventListener('focusin',function(e){var b=e.target.closest('.cb'); if(b)pick(b.getAttribute('data-k'));});
+
+/* worlds */
+var wrow=$('worlds'), wview=$('wview'), wname=$('wname'), wtext=$('wtext');
+function world(id){
+  var w=WORLDS.filter(function(x){return x.id===id;})[0]; if(!w)return;
+  [].forEach.call(wrow.children,function(b){b.setAttribute('aria-pressed',b.getAttribute('data-w')===id?'true':'false');});
+  wview.textContent='';
+  var im=document.createElement('img'); im.src=w.img; im.alt=w.name; wview.appendChild(im);
+  w.marks.forEach(function(m){var s=document.createElement('span'); s.className='mk'+(m[0]>70?' l':''); s.style.left=m[0]+'%'; s.style.top=m[1]+'%'; s.textContent=m[2]; wview.appendChild(s);});
+  wname.textContent=w.name; wtext.textContent=w.text;
+}
+wrow.addEventListener('click',function(e){var b=e.target.closest('.wb'); if(b)world(b.getAttribute('data-w'));});
+wrow.addEventListener('mouseover',function(e){var b=e.target.closest('.wb'); if(b)world(b.getAttribute('data-w'));});
+wrow.addEventListener('focusin',function(e){var b=e.target.closest('.wb'); if(b)world(b.getAttribute('data-w'));});
+world('jupiter');
+
+window.addEventListener('resize',function(){seed();kick();if(calm)drawOrbits(0);});
+seed();
+function toHome(){var h=$('home');sky.scrollTop=h.offsetHeight>sky.clientHeight?h.offsetTop:sky.scrollHeight;lastY=sky.scrollTop;climbed=0;}
+toHome();
+window.addEventListener('load',function(){if(sky.scrollHeight-sky.clientHeight-sky.scrollTop<600&&isAscent()){toHome();}kick();});
+fromHash();
+kick(); loop(); if(calm){drawOrbits(0);drawCis(0);}
+})();
+</script>
+</body>
+</html>
