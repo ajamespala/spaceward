@@ -164,7 +164,6 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 <header class="bar">
 <button class="brand" type="button" data-go="home" aria-label="SPACEWARD. Home"><svg class="mark" viewBox="-116 -116 232 232" aria-hidden="true"><g transform="translate(0 5)"><path transform="translate(0 -48)" d="M 0 -58 Q 6.96 -6.96 58 0 Q 6.96 6.96 0 58 Q -6.96 6.96 -58 0 Q -6.96 -6.96 0 -58 Z" fill="currentColor"></path><path d="M -100 87 A 130 130 0 0 1 100 87" fill="none" stroke="currentColor" stroke-width="14"></path></g></svg><span>SPACEWARD.</span></button>
 <nav aria-label="Site">
-<button type="button" data-view-to="manifesto">Manifesto</button>
 <button type="button" data-view-to="shop">Shop</button>
 <a href="https://astronomics.substack.com/" target="_blank" rel="noopener">Astronomics</a>
 </nav>
@@ -250,7 +249,6 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 <p>Spaceward is the banner. Astronomics is where the numbers get worked: space economics and cislunar strategy, one architecture at a time.</p>
 <div class="row">
 <a class="btn" href="https://astronomics.substack.com/" target="_blank" rel="noopener">Read Astronomics</a>
-<button class="btn line" type="button" data-view-to="manifesto">Manifesto</button>
 <button class="btn line" type="button" data-view-to="shop">Shop</button>
 </div>
 <footer>SPACEWARD. / Imagery: NASA</footer>
@@ -258,39 +256,6 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 </section>
 
 </main>
-</div>
-
-<div id="manifesto" class="page" tabindex="-1">
-<div class="wrap">
-<div class="copy" style="flex:none">
-<div class="alt">Manifesto</div>
-<h2>The frontier did not close. It moved up.</h2>
-</div>
-<div class="essay">
-<p class="lede">Westward was a compass heading. For three hundred years Americans followed it, and it made the country what it is: restless, inventive, unwilling to believe the map was finished.</p>
-<p>Then the map was finished.</p>
-<p>The drive that filled it did not go anywhere. A people built by a frontier does not stop needing one. For a century that energy has had nowhere to point.</p>
-<p>There is one heading left, and it is not on the compass.</p>
-<h3>This frontier is empty</h3>
-<p>No one lives there. Nothing has to be taken from anyone. The only thing in the way is distance, and distance is an engineering problem.</p>
-<h3>It is also rich</h3>
-<p>Sunlight that never sets. Water ice at the lunar poles. Single asteroids with metal to rival the world's reserves. Room for more people, more industry and more life than Earth could ever hold.</p>
-<h3>What we are for</h3>
-<ol class="tenets">
-<li><b>Settle the Moon.</b> Not flags and footprints. Towns, power, industry, and people who stay.</li>
-<li><b>Terraform Mars.</b> A second living world, built on purpose, over generations.</li>
-<li><b>Inhabit the Solar System.</b> Every world and every orbit within reach, with people living there.</li>
-</ol>
-<h3>It has to pencil</h3>
-<p>Conviction without arithmetic is science fiction. Every step outward has to pay for the next one. That work happens at <a href="ASTRO" target="_blank" rel="noopener">Astronomics</a>, one architecture at a time. Spaceward is the flag it is done under.</p>
-<h3>Why now</h3>
-<p>The cost of reaching orbit has collapsed within a single generation. Rockets land and fly again. What was a government programme is turning into an economy, and economies grow.</p>
-<h3>Why us</h3>
-<p>Americans went west, then went to the Moon, then stopped. We are picking it back up: to stay, to build, and to bring along everyone who wants to come.</p>
-<p class="sign">Expand SPACEWARD.</p>
-</div>
-<div class="row"><button class="btn" type="button" data-go="home">Start the ascent</button><button class="btn line" type="button" data-view-to="shop">Shop</button></div>
-</div>
 </div>
 
 <div id="shop" class="page" tabindex="-1">
@@ -375,7 +340,7 @@ document.addEventListener('click',function(e){
   var t=e.target.closest('[data-go],[data-view-to]'); if(!t)return;
   if(t.hasAttribute('data-view-to'))view(t.getAttribute('data-view-to')); else go(t.getAttribute('data-go'));
 });
-function fromHash(){var h=location.hash.replace('#','');view(h==='shop'||h==='manifesto'?h:'ascent',true);}
+function fromHash(){var h=location.hash.replace('#','');view(h==='shop'?h:'ascent',true);}
 window.addEventListener('hashchange',fromHash);
 
 /* moving stars over the star map */
