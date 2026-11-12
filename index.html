@@ -32,7 +32,7 @@ button{font:inherit;color:inherit}
 body:not([data-view="ascent"]) #sky,body:not([data-view="ascent"]) .rail,body:not([data-view="ascent"]) .hud,body:not([data-view="ascent"]) #stars,body:not([data-view="ascent"]) #map{display:none}
 body[data-view="shop"] #shop,body[data-view="manifesto"] #manifesto{display:block}
 .ascent{display:flex;flex-direction:column-reverse}
-.stage{position:relative;min-height:clamp(620px,100vh,1040px);display:flex;align-items:center;padding:104px clamp(20px,6vw,96px) 104px;padding-right:clamp(64px,11vw,180px);overflow:hidden}
+.stage{position:relative;min-height:clamp(560px,100vh,1040px);min-height:clamp(560px,100svh,1040px);display:flex;align-items:center;padding:104px clamp(20px,6vw,96px) 104px;padding-right:clamp(64px,11vw,180px);overflow:hidden}
 .stage.tall{height:240vh;min-height:0;padding:0;overflow:visible;flex-direction:column;justify-content:flex-end;align-items:stretch}
 .pin{position:sticky;bottom:0;height:100vh;display:flex;align-items:center;padding:104px clamp(20px,6vw,96px) 104px;padding-right:clamp(64px,11vw,180px)}
 .inner{position:relative;width:100%;max-width:1120px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:40px 56px}
@@ -147,14 +147,35 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 .tenets b{color:var(--star)}
 .essay .sign{font-family:var(--display);font-weight:800;font-size:44px;letter-spacing:.04em;text-transform:uppercase;color:var(--star);margin-top:18px}
 @media (max-width:640px){
+  body{font-size:16px}
   .brand span{display:none}
+  .bar{background:rgba(7,8,11,.94);padding-top:8px;padding-bottom:8px}
   .bar nav button,.bar nav a{font-size:15px;letter-spacing:.12em}
-  .stage,.pin{padding-right:56px;padding-top:84px;padding-bottom:92px}
-  #cis{height:auto;width:100%}
-  #orbits{width:min(80vw,36vh)}
-  #home .note{display:none}
+  .stage,.pin{padding:76px 56px 92px 20px}
   .stage.tall{padding:0}
-  .wview{margin:6px 30px}
+  .inner{gap:22px}
+  h2{font-size:38px}
+  .h2s{font-size:30px}
+  .alt{font-size:14px}
+  .cap{font-size:12.5px}
+  .hud{background:rgba(7,8,11,.9)}
+  #orbits{width:min(84vw,40vh)}
+  #home .note{display:none}
+  .morph{width:min(54vw,30vh)}
+  #cis{height:auto;width:100%;max-height:32vh}
+  .chips,.worlds{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-56px;padding-right:56px;width:calc(100% + 56px)}
+  .chips::-webkit-scrollbar,.worlds::-webkit-scrollbar{display:none}
+  .cb,.wb{flex:none}
+  .wb{width:74px;font-size:12px;letter-spacing:.1em}
+  .desc{min-height:4.5em}
+  .stats{gap:14px 20px}
+  .stat{flex:1 1 120px}
+  .stat b{font-size:28px}
+  .stat span{font-size:14px}
+  .rocks{width:54vw}
+  .wdetail{min-height:0;gap:10px 20px}
+  .wview{width:132px;margin:8px 70px 8px 24px}
+  .wtext{flex-basis:100%}
 }
 @media (prefers-reduced-motion:reduce){.tick span,#cis .k,.wb img,.morph img,.morph.live img+img{transition:none}}
 </style>
@@ -184,7 +205,7 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 </div>
 </div><div class="art">
 <canvas id="orbits" role="img" aria-label="Earth with its traffic drawn around it: the International Space Station at 400 kilometres, many low-orbit constellation shells between 340 and 1,200, a dawn-dusk sun-synchronous ring for data centres, navigation satellites in medium orbit near 20,200, geostationary satellites at 35,786, and the Moon at 384,400 kilometres"></canvas>
-<span class="cap">Hover to see the orbits and name them. Earth from NASA's surface map. Spacing compressed, not to scale.</span>
+<span class="cap">Hover or tap to see the orbits and name them. Earth from NASA's surface map. Spacing compressed, not to scale.</span>
 </div></div>
 </section>
 
