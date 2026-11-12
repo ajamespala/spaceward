@@ -137,6 +137,7 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 .tile{width:100%;background:var(--hull);display:flex;align-items:center;justify-content:center;gap:4%;padding:8% 6%;aspect-ratio:4/3}
 .prod{width:86%;height:auto;display:block}
 .sp{width:100%;min-height:120px}
+#store{grid-template-columns:repeat(auto-fit,minmax(280px,440px))}
 .tile .tee{width:46%}
 .essay{max-width:680px;display:flex;flex-direction:column;gap:18px}
 .essay p{font-size:20px;line-height:1.55;max-width:none}
@@ -287,7 +288,7 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 <div class="wrap">
 <div class="copy" style="flex:none">
 <div class="alt">Shop</div>
-<h2>Gear for the heading.</h2>
+<h2>Fly the colors.</h2>
 </div>
 <div class="items" id="store">
 <div class="item"><div id="shopify-product-1" class="sp"></div></div>
@@ -558,6 +559,7 @@ function startShop(){
       styles:{
         product:{'text-align':'left','@media (min-width: 601px)':{'max-width':'100%','margin-left':'0','margin-bottom':'0'}},
         img:{'background-color':'#11141A'},
+        imgWrapper:{'background-color':'#11141A','margin-bottom':'18px'},
         title:{'font-family':DISPLAY,'font-weight':'800','font-size':'32px','line-height':'1','text-transform':'uppercase','letter-spacing':'0.01em','color':'#F4F5F7'},
         price:{'font-family':BODY,'font-size':'18px','color':'#C9CED6'},
         compareAt:{'font-family':BODY,'color':'#8D95A3'},
