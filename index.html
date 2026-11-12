@@ -292,6 +292,7 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 </div>
 <div class="items" id="store">
 <div class="item"><div id="shopify-product-1" class="sp"></div></div>
+<div class="item"><div id="shopify-product-2" class="sp"></div></div>
 </div>
 <p class="note" id="storenote">Loading the shop&hellip;</p>
 <div><button class="btn line" type="button" data-go="home">Back to the ascent</button></div>
@@ -542,7 +543,7 @@ chips.addEventListener('focusin',function(e){var b=e.target.closest('.cb'); if(b
 
 
 /* shop: Shopify Buy Button, restyled to the site. Add more products by adding their ids to PRODUCTS. */
-var SHOP={domain:'zczkrj-r8.myshopify.com',token:'040a5ed05be778e34f53d061cdfac365',PRODUCTS:[{id:'10437009080545',node:'shopify-product-1'}]};
+var SHOP={domain:'zczkrj-r8.myshopify.com',token:'040a5ed05be778e34f53d061cdfac365',PRODUCTS:[{id:'10437009080545',node:'shopify-product-1'},{id:'10437043192033',node:'shopify-product-2'}]};
 var shopStarted=false, wentToCheckout=false;
 /* Checkout happens in a separate Shopify window, so the cart here only learns the order went through when it re-checks.
    When the visitor comes back from checkout, reload so the cart re-checks and empties if the order completed. */
