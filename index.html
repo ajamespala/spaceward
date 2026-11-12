@@ -137,7 +137,38 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 .tile{width:100%;background:var(--hull);display:flex;align-items:center;justify-content:center;gap:4%;padding:8% 6%;aspect-ratio:4/3}
 .prod{width:86%;height:auto;display:block}
 .sp{width:100%;min-height:120px}
-#store{grid-template-columns:repeat(auto-fit,minmax(280px,440px))}
+#store{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px}
+/* shop: a light page, so product photos on white sit naturally */
+.bar nav{align-items:center}
+.bar nav .shopbtn{border:1px solid currentColor;padding:8px 16px}
+.bar nav .shopbtn:hover,.bar nav .shopbtn[aria-current="page"]{background:var(--star);color:var(--void);border-color:var(--star)}
+#shop{background:#E8EAEE;color:var(--void)}
+#shop .wrap{gap:40px;padding-top:120px}
+#shop .alt,#shop .note{color:#565E6B}
+#shop p{color:#333A45}
+#shop h2,#shop h3{color:var(--void)}
+.shophead{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.shophead p{font-size:20px}
+#shop .item{background:#fff;padding:18px 18px 22px;gap:12px}
+#shop .item .blurb{font-size:16px;margin:0}
+#shop .item{scroll-margin-top:96px}
+.backprint{display:flex;flex-wrap:wrap;background:#fff}
+.bp-art{flex:1 1 340px;background:#34373F;display:flex;align-items:center;justify-content:center;padding:clamp(20px,4vw,44px)}
+.bp-art img{width:100%;max-width:520px}
+.bp-copy{flex:1 1 300px;display:flex;flex-direction:column;gap:16px;align-items:flex-start;justify-content:center;padding:clamp(24px,4vw,48px)}
+#shop .btn{border-color:var(--void);background:var(--void);color:var(--star)}
+#shop .btn:hover{background:transparent;color:var(--void)}
+#shop .btn.line{background:transparent;color:var(--void)}
+#shop .btn.line:hover{background:var(--void);color:var(--star)}
+.assure{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px 32px;border-top:1px solid #C9CED6;padding-top:28px}
+.assure li{display:flex;flex-direction:column;gap:4px;font-size:16px;color:#333A45}
+.assure b{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.1em;text-transform:uppercase;color:var(--void)}
+#shop :focus-visible{outline-color:var(--void)}
+body[data-view="shop"] .bar{background:#E8EAEE;border-bottom:1px solid #D0D4DB}
+body[data-view="shop"] .brand,body[data-view="shop"] .bar nav button,body[data-view="shop"] .bar nav a{color:var(--void)}
+body[data-view="shop"] .bar nav a:hover{border-bottom-color:var(--void)}
+body[data-view="shop"] .bar nav .shopbtn,body[data-view="shop"] .bar nav .shopbtn:hover{background:var(--void);color:var(--star);border-color:var(--void)}
+body[data-view="shop"] .bar :focus-visible{outline-color:var(--void)}
 .tile .tee{width:46%}
 .essay{max-width:680px;display:flex;flex-direction:column;gap:18px}
 .essay p{font-size:20px;line-height:1.55;max-width:none}
@@ -153,6 +184,11 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
   .brand span{display:none}
   .bar{background:rgba(7,8,11,.94);padding-top:8px;padding-bottom:8px}
   .bar nav button,.bar nav a{font-size:15px;letter-spacing:.12em}
+  .bar nav .shopbtn{padding:6px 12px}
+  body[data-view="shop"] .bar{background:#E8EAEE}
+  #shop .wrap{padding-top:84px;gap:28px;padding-bottom:64px}
+  #shop .item{padding:12px 12px 18px}
+  .shophead p{font-size:17px}
   .stage,.pin{padding:76px 56px 92px 20px}
   .stage.tall{padding:0}
   .inner{gap:22px}
@@ -189,8 +225,8 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 <header class="bar">
 <button class="brand" type="button" data-go="home" aria-label="SPACEWARD. Home"><svg class="mark" viewBox="-116 -116 232 232" aria-hidden="true"><g transform="translate(0 5)"><path transform="translate(0 -48)" d="M 0 -58 Q 6.96 -6.96 58 0 Q 6.96 6.96 0 58 Q -6.96 6.96 -58 0 Q -6.96 -6.96 0 -58 Z" fill="currentColor"></path><path d="M -100 87 A 130 130 0 0 1 100 87" fill="none" stroke="currentColor" stroke-width="14"></path></g></svg><span>SPACEWARD.</span></button>
 <nav aria-label="Site">
-<button type="button" data-view-to="shop">Shop</button>
 <a href="https://astronomics.substack.com/" target="_blank" rel="noopener">Astronomics</a>
+<button type="button" class="shopbtn" data-view-to="shop">Shop</button>
 </nav>
 </header>
 
@@ -286,15 +322,30 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 
 <div id="shop" class="page" tabindex="-1">
 <div class="wrap">
-<div class="copy" style="flex:none">
+<div class="shophead">
 <div class="alt">Shop</div>
 <h2>Fly the colors.</h2>
+<p>Made to order. Each piece is made when you buy it and shipped straight to you.</p>
 </div>
 <div class="items" id="store">
-<div class="item"><div id="shopify-product-1" class="sp"></div></div>
-<div class="item"><div id="shopify-product-2" class="sp"></div></div>
+<div class="item"><div id="shopify-product-1" class="sp"></div><p class="blurb">Black cap. SPACEWARD. stitched on the front.</p></div>
+<div class="item"><div id="shopify-product-2" class="sp"></div><p class="blurb">Dark grey tee. The mark on the chest, the full print across the back.</p></div>
 </div>
 <p class="note" id="storenote">Loading the shop&hellip;</p>
+<section class="backprint" aria-label="The back of the tee">
+<div class="bp-art"><img src="img/tee-back.webp" width="1200" height="1180" loading="lazy" alt="The print on the back of the tee: Earth and the Moon drawn in fine white line, ringed with orbits, stations and ships, above the words EXPAND SPACEWARD."></div>
+<div class="bp-copy">
+<div class="alt">The back of the tee</div>
+<h3>Expand Spaceward.</h3>
+<p>Earth, the Moon, and the stations, depots and ships that will work the space between them. Printed large across the back. The front stays quiet: just the mark on the chest.</p>
+<button class="btn" type="button" id="totee">Get the tee</button>
+</div>
+</section>
+<ul class="assure">
+<li><b>Made to order</b><span>Nothing sits in a warehouse. Yours is made when you order it.</span></li>
+<li><b>Secure checkout</b><span>Payment is handled by Shopify.</span></li>
+<li><b>Shipped to you</b><span>You get an email when it is on its way.</span></li>
+</ul>
 <div><button class="btn line" type="button" data-go="home">Back to the ascent</button></div>
 </div>
 </div>
@@ -552,42 +603,56 @@ window.addEventListener('focus',backFromCheckout); document.addEventListener('vi
 function startShop(){
   if(shopStarted)return; shopStarted=true;
   var note=$('storenote');
-  function fail(){note.innerHTML='The shop could not load here. Open it at <a href="https://gospaceward.com/#shop" style="color:#F4F5F7">gospaceward.com</a>.';}
+  function fail(){note.innerHTML='The shop could not load here. Open it at <a href="https://gospaceward.com/#shop" style="color:#07080B">gospaceward.com</a>.';}
   var DISPLAY="'Barlow Condensed', 'Arial Narrow', sans-serif", BODY="'Barlow', Arial, sans-serif";
-  var BTN={'font-family':DISPLAY,'font-weight':'800','font-size':'19px','letter-spacing':'0.14em','text-transform':'uppercase','padding':'15px 26px','border-radius':'0','background-color':'#F4F5F7','color':'#07080B',':hover':{'background-color':'#FFFFFF','color':'#07080B'},':focus':{'background-color':'#FFFFFF','color':'#07080B'}};
+  var INK='#07080B', PAPER='#FFFFFF', SOFT='#333A45', MUTE='#565E6B', RULE='#D0D4DB';
+  var BTN={'font-family':DISPLAY,'font-weight':'800','font-size':'19px','letter-spacing':'0.14em','text-transform':'uppercase','padding':'16px 26px','border-radius':'0','background-color':INK,'color':'#F4F5F7',':hover':{'background-color':'#1C212B','color':'#FFFFFF'},':focus':{'background-color':'#1C212B','color':'#FFFFFF'}};
+  var WIDE={'width':'100%','display':'block'}, k; for(k in BTN)WIDE[k]=BTN[k];
+  /* A product with one photo does not need gallery arrows or a thumbnail strip. */
+  function tidyGallery(c){try{
+    if(c.model.images.length>1)return;
+    var d=c.view.document||c.node.ownerDocument;
+    [].forEach.call(d.querySelectorAll('.carousel-button,.shopify-buy__carousel'),function(e){e.style.display='none';});
+    if(c.view.resize)c.view.resize();
+  }catch(e){}}
   var options={
     product:{
       layout:'vertical', width:'100%',
-      contents:{img:true,title:true,price:true,options:true,quantity:false,button:true,description:false},
+      contents:{img:false,imgWithCarousel:true,title:true,price:true,options:true,quantity:false,button:true,description:false},
       text:{button:'Add to cart'},
       googleFonts:['Barlow Condensed','Barlow'],
+      events:{afterRender:tidyGallery},
       styles:{
         product:{'text-align':'left','@media (min-width: 601px)':{'max-width':'100%','margin-left':'0','margin-bottom':'0'}},
-        img:{'background-color':'#11141A'},
-        imgWrapper:{'background-color':'#11141A','margin-bottom':'18px'},
-        title:{'font-family':DISPLAY,'font-weight':'800','font-size':'32px','line-height':'1','text-transform':'uppercase','letter-spacing':'0.01em','color':'#F4F5F7'},
-        price:{'font-family':BODY,'font-size':'18px','color':'#C9CED6'},
-        compareAt:{'font-family':BODY,'color':'#8D95A3'},
-        unitPrice:{'font-family':BODY,'color':'#8D95A3'},
-        button:BTN
+        img:{'background-color':PAPER},
+        imgWrapper:{'background-color':PAPER,'margin-bottom':'16px'},
+        carousel:{'text-align':'left','min-height':'0'},
+        carouselItem:{'border':'1px solid '+RULE},
+        carouselItemSelected:{'opacity':'1','border':'1px solid '+INK},
+        title:{'font-family':DISPLAY,'font-weight':'800','font-size':'34px','line-height':'1','text-transform':'uppercase','letter-spacing':'0.01em','color':INK},
+        price:{'font-family':BODY,'font-weight':'600','font-size':'20px','color':INK},
+        compareAt:{'font-family':BODY,'color':MUTE},
+        unitPrice:{'font-family':BODY,'color':MUTE},
+        buttonWrapper:{'margin-top':'18px'},
+        button:WIDE
       }
     },
-    option:{styles:{label:{'font-family':DISPLAY,'font-weight':'700','color':'#8D95A3','text-transform':'uppercase','letter-spacing':'0.14em'},select:{'font-family':BODY}},googleFonts:['Barlow Condensed','Barlow']},
+    option:{styles:{label:{'font-family':DISPLAY,'font-weight':'700','color':MUTE,'text-transform':'uppercase','letter-spacing':'0.14em'},select:{'font-family':BODY}},googleFonts:['Barlow Condensed','Barlow']},
     cart:{
       events:{openCheckout:function(){wentToCheckout=true;}},
       text:{title:'Cart',total:'Subtotal',button:'Checkout',notice:'Shipping and taxes are calculated at checkout.'},
       googleFonts:['Barlow Condensed','Barlow'],
-      styles:{cart:{'background-color':'#11141A'},header:{'color':'#F4F5F7'},title:{'font-family':DISPLAY,'color':'#F4F5F7'},lineItems:{'color':'#F4F5F7'},subtotalText:{'font-family':BODY,'color':'#C9CED6'},subtotal:{'font-family':BODY,'color':'#F4F5F7'},notice:{'font-family':BODY,'color':'#8D95A3'},currency:{'color':'#8D95A3'},close:{'color':'#F4F5F7',':hover':{'color':'#FFFFFF'}},empty:{'font-family':BODY,'color':'#C9CED6'},noteDescription:{'color':'#C9CED6'},discountText:{'color':'#F4F5F7'},discountIcon:{'fill':'#F4F5F7'},discountAmount:{'color':'#F4F5F7'},footer:{'background-color':'#11141A'},button:BTN}
+      styles:{cart:{'background-color':PAPER},header:{'color':INK},title:{'font-family':DISPLAY,'color':INK},lineItems:{'color':INK},subtotalText:{'font-family':BODY,'color':SOFT},subtotal:{'font-family':BODY,'color':INK},notice:{'font-family':BODY,'color':MUTE},currency:{'color':MUTE},close:{'color':INK,':hover':{'color':INK}},empty:{'font-family':BODY,'color':SOFT},noteDescription:{'color':SOFT},discountText:{'color':INK},discountIcon:{'fill':INK},discountAmount:{'color':INK},footer:{'background-color':PAPER},button:BTN}
     },
-    lineItem:{styles:{variantTitle:{'font-family':BODY,'color':'#C9CED6'},title:{'font-family':BODY,'color':'#F4F5F7'},price:{'font-family':BODY,'color':'#F4F5F7'},fullPrice:{'color':'#8D95A3'},discount:{'color':'#C9CED6'},discountIcon:{'fill':'#C9CED6'},quantity:{'color':'#F4F5F7'},quantityIncrement:{'color':'#F4F5F7','border-color':'#2A303C'},quantityDecrement:{'color':'#F4F5F7','border-color':'#2A303C'},quantityInput:{'color':'#F4F5F7','border-color':'#2A303C'}}},
-    toggle:{googleFonts:['Barlow Condensed'],styles:{toggle:{'font-family':DISPLAY,'background-color':'#F4F5F7',':hover':{'background-color':'#FFFFFF'},':focus':{'background-color':'#FFFFFF'}},count:{'color':'#07080B',':hover':{'color':'#07080B'}},iconPath:{'fill':'#07080B'}}}
+    lineItem:{styles:{variantTitle:{'font-family':BODY,'color':SOFT},title:{'font-family':BODY,'color':INK},price:{'font-family':BODY,'color':INK},fullPrice:{'color':MUTE},discount:{'color':SOFT},discountIcon:{'fill':SOFT},quantity:{'color':INK},quantityIncrement:{'color':INK,'border-color':RULE},quantityDecrement:{'color':INK,'border-color':RULE},quantityInput:{'color':INK,'border-color':RULE}}},
+    toggle:{googleFonts:['Barlow Condensed'],styles:{toggle:{'font-family':DISPLAY,'background-color':INK,'border':'1px solid #8D95A3',':hover':{'background-color':'#1C212B'},':focus':{'background-color':'#1C212B'}},count:{'color':'#F4F5F7',':hover':{'color':'#F4F5F7'}},iconPath:{'fill':'#F4F5F7'}}}
   };
   function init(){
     try{
       var client=ShopifyBuy.buildClient({domain:SHOP.domain,storefrontAccessToken:SHOP.token});
       ShopifyBuy.UI.onReady(client).then(function(ui){
         SHOP.PRODUCTS.forEach(function(p){ui.createComponent('product',{id:p.id,node:$(p.node),moneyFormat:'%24%7B%7Bamount%7D%7D',options:options});});
-        note.textContent='Checkout is handled securely by Shopify.';
+        note.hidden=true;
       }).catch(fail);
     }catch(e){fail();}
   }
@@ -596,6 +661,8 @@ function startShop(){
   sc.onload=init; sc.onerror=fail; document.head.appendChild(sc);
   setTimeout(function(){if(!$('shopify-product-1').children.length)fail();},9000);
 }
+
+$('totee').addEventListener('click',function(){var t=$('shopify-product-2');if(t&&t.scrollIntoView)t.scrollIntoView({behavior:calm?'auto':'smooth',block:'start'});});
 
 /* worlds */
 var wrow=$('worlds'), wview=$('wview'), wname=$('wname'), wtext=$('wtext');
