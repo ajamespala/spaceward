@@ -72,7 +72,7 @@ p{margin:0;max-width:34em;color:#C9CED6}
 .ship svg{display:block;width:22px;height:22px}
 .plume{position:absolute;left:50%;top:18px;width:3px;margin-left:-1.5px;height:var(--burn,6px);background:linear-gradient(to bottom,rgba(244,245,247,.9),rgba(244,245,247,0))}
 /* home */
-#orbits{width:min(84vw,62vh,560px);aspect-ratio:1.18;display:block}
+#orbits{width:min(88vw,70vh,640px);aspect-ratio:1.22;display:block}
 #home .copy{flex:1.15 1 380px}
 #cislunar .art{flex:1.4 1 380px}
 #cislunar .inner{gap:24px 48px}
@@ -139,6 +139,13 @@ p{margin:0;max-width:34em;color:#C9CED6}
 .mk::before{content:"";width:16px;height:16px;border:1.5px solid var(--star);border-radius:50%;flex:none;background:rgba(7,8,11,.35)}
 .wtext{flex:1 1 300px;display:flex;flex-direction:column;gap:10px}
 footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--steel)}
+/* looking back */
+.pbd{-webkit-mask-image:radial-gradient(closest-side,#000 50%,transparent);mask-image:radial-gradient(closest-side,#000 50%,transparent);position:relative;width:min(64vw,340px);aspect-ratio:4/3;background:linear-gradient(102deg,transparent 36%,rgba(255,236,205,.07) 45%,rgba(255,236,205,.15) 50%,rgba(255,236,205,.07) 55%,transparent 64%)}
+.pbd i{position:absolute;left:50.5%;top:57%;width:4px;height:4px;border-radius:50%;background:#C4D8F5;box-shadow:0 0 7px 1px rgba(170,200,255,.65)}
+.gains{list-style:none;margin:0;padding:0;flex:1 1 100%;display:grid;grid-template-columns:repeat(4,1fr);gap:24px 32px}
+.gains li{border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:8px}
+.gains p{font-size:16px;max-width:none}
+@media (max-width:980px){.gains{grid-template-columns:repeat(2,1fr)}}
 /* pages */
 .wrap{max-width:1080px;margin:0 auto;padding:128px clamp(20px,6vw,64px) 96px;display:flex;flex-direction:column;gap:48px}
 .items{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:56px 48px}
@@ -161,17 +168,20 @@ footer{font-family:var(--display);font-weight:500;font-size:14px;letter-spacing:
 #shop .item{background:#fff;padding:18px 18px 22px;gap:12px}
 #shop .item .blurb{font-size:16px;margin:0}
 #shop .item{scroll-margin-top:96px}
-.backprint{display:flex;flex-wrap:wrap;background:#fff}
-.bp-art{flex:1 1 340px;background:#34373F;display:flex;align-items:center;justify-content:center;padding:clamp(20px,4vw,44px)}
-.bp-art img{width:100%;max-width:520px}
-.bp-copy{flex:1 1 300px;display:flex;flex-direction:column;gap:16px;align-items:flex-start;justify-content:center;padding:clamp(24px,4vw,48px)}
+.gal{width:100%;display:flex;flex-direction:column;gap:10px}
+.gal .main{position:relative;background:#fff;aspect-ratio:1}
+.gal .main img{width:100%;height:100%;object-fit:contain}
+.gal .nav{position:absolute;top:0;bottom:0;width:48px;border:0;background:none;cursor:pointer;color:var(--void);font-family:var(--display);font-weight:500;font-size:34px;line-height:1;opacity:.45}
+.gal .nav:hover,.gal .nav:focus-visible{opacity:1}
+.gal .nav.p{left:0}.gal .nav.n{right:0}
+.gal .thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.gal .thumbs button{width:60px;height:60px;padding:0;border:1px solid #D0D4DB;background:#fff;cursor:pointer}
+.gal .thumbs button[aria-pressed="true"]{border-color:var(--void)}
+.gal .thumbs img{width:100%;height:100%;object-fit:cover}
 #shop .btn{border-color:var(--void);background:var(--void);color:var(--star)}
 #shop .btn:hover{background:transparent;color:var(--void)}
 #shop .btn.line{background:transparent;color:var(--void)}
 #shop .btn.line:hover{background:var(--void);color:var(--star)}
-.assure{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px 32px;border-top:1px solid #C9CED6;padding-top:28px}
-.assure li{display:flex;flex-direction:column;gap:4px;font-size:16px;color:#333A45}
-.assure b{font-family:var(--display);font-weight:800;font-size:20px;letter-spacing:.1em;text-transform:uppercase;color:var(--void)}
 #shop :focus-visible{outline-color:var(--void)}
 body[data-view="shop"] .bar{background:#E8EAEE;border-bottom:1px solid #D0D4DB}
 body[data-view="shop"] .brand,body[data-view="shop"] .bar nav button,body[data-view="shop"] .bar nav a{color:var(--void)}
@@ -223,6 +233,11 @@ body[data-view="shop"] .bar :focus-visible{outline-color:var(--void)}
   .wdetail{min-height:0;gap:10px 20px}
   .wview{width:132px;margin:8px 70px 8px 24px}
   .wtext{flex-basis:100%}
+  #gains .art{display:none}
+  .gains{grid-template-columns:1fr;gap:14px}
+  .gains li{padding-top:10px;gap:4px}
+  .gains p{font-size:15px}
+  .gains h3{font-size:22px}
 }
 @media (prefers-reduced-motion:reduce){.tick span,#cis .k,.wb img,.morph img,.morph.live img+img{transition:none}#cis .ping,#cis .roll{animation:none}#cis .ping{opacity:0}}
 </style>
@@ -312,12 +327,26 @@ body[data-view="shop"] .bar :focus-visible{outline-color:var(--void)}
 </div></div>
 </section>
 
+<section class="stage" id="gains" data-name="Looking back" data-km="6000000000">
+<div class="inner"><div class="copy">
+<div class="alt">6,000,000,000 km / Looking back</div>
+<h2 class="h2s">For everyone back home</h2>
+<p>Most people will never leave Earth. They come out ahead anyway.</p>
+</div><div class="art"><div class="pbd" role="img" aria-label="Earth as a single pale dot in a band of sunlight"><i></i></div><span class="cap">Earth from this far out is one pale dot, as Voyager 1 photographed it in 1990. Illustration.</span></div>
+<ul class="gains">
+<li><h3>Inspiration</h3><p>Ask engineers who grew up in the 1960s why they chose the work, and many will say Apollo. The next generation gets to watch towns go up on the Moon.</p></li>
+<li><h3>Science</h3><p>How did the planets form? Was there ever life on Mars? Are we alone? People working on site, and telescopes built in space, can settle what probes only narrow down.</p></li>
+<li><h3>Technology</h3><p>Hard problems out there become tools down here. GPS, weather forecasts and the camera sensor in your phone all came out of space work.</p></li>
+<li><h3>Economy</h3><p>Orbit has near-constant sunlight and no neighbours. Put heavy industry and the biggest AI data centres there, and Earth gets the output without spending its land, power and water.</p></li>
+</ul>
+</div>
+</section>
+
 <section class="stage" id="beyond" data-name="The heliopause" data-km="18000000000">
 <div class="inner"><div class="copy">
 <div class="alt">18,000,000,000 km / The heliopause</div>
 <h2>And beyond!</h2>
 <p>Here the Sun's wind gives out and interstellar space begins. Voyager 1 crossed this line in 2012 and is still going.</p>
-<p>The economics behind every step on this page are worked out on Astronomics.</p>
 <div class="row">
 <button class="btn" type="button" data-view-to="shop">Shop</button>
 <a class="btn line" href="https://astronomics.substack.com/" target="_blank" rel="noopener">Read Astronomics</a>
@@ -337,24 +366,10 @@ body[data-view="shop"] .bar :focus-visible{outline-color:var(--void)}
 <p>Made to order. Each piece is made when you buy it and shipped straight to you.</p>
 </div>
 <div class="items" id="store">
-<div class="item"><div id="shopify-product-1" class="sp"></div><p class="blurb">Black cap. SPACEWARD. stitched on the front.</p></div>
-<div class="item"><div id="shopify-product-2" class="sp"></div><p class="blurb">Dark grey tee. The mark on the chest, the full print across the back.</p></div>
+<div class="item"><div class="gal" id="gal-1" hidden></div><div id="shopify-product-1" class="sp"></div><p class="blurb">Black cap. SPACEWARD. stitched on the front.</p></div>
+<div class="item"><div class="gal" id="gal-2" hidden></div><div id="shopify-product-2" class="sp"></div><p class="blurb">Dark grey tee. The mark on the chest, the full print across the back.</p></div>
 </div>
 <p class="note" id="storenote">Loading the shop&hellip;</p>
-<section class="backprint" aria-label="The back of the tee">
-<div class="bp-art"><img src="img/tee-back.webp" width="1200" height="1180" loading="lazy" alt="The print on the back of the tee: Earth and the Moon drawn in fine white line, ringed with orbits, stations and ships, above the words EXPAND SPACEWARD."></div>
-<div class="bp-copy">
-<div class="alt">The back of the tee</div>
-<h3>Expand Spaceward.</h3>
-<p>Earth, the Moon, and the stations, depots and ships that will work the space between them. Printed large across the back. The front stays quiet: just the mark on the chest.</p>
-<button class="btn" type="button" id="totee">Get the tee</button>
-</div>
-</section>
-<ul class="assure">
-<li><b>Made to order</b><span>Nothing sits in a warehouse. Yours is made when you order it.</span></li>
-<li><b>Secure checkout</b><span>Payment is handled by Shopify.</span></li>
-<li><b>Shipped to you</b><span>You get an email when it is on its way.</span></li>
-</ul>
 <div><button class="btn line" type="button" data-go="home">Back to the ascent</button></div>
 </div>
 </div>
@@ -467,57 +482,82 @@ sky.addEventListener('scroll',kick,{passive:true});
 /* home: Earth and its traffic. Orbits are drawn as tilted 3-D circles; names appear on hover. */
 var oc=$('orbits'), ox=oc.getContext('2d'), eImg=new Image(), mImg=new Image(); eImg.src='img/earth.jpg'; mImg.src='img/moon.jpg';
 var tImg=new Image(), GLOBE=null; tImg.src='img/earthmap.jpg';
-var EL=Math.asin(.58), ROT=-.16, hot=null, ptr=null, tNow=0;
+var EL0=.37, ROT=-.16, hot=null, ptr=null, tNow=0;
 var GROUPS={iss:'ISS · 400 km',leo:'LEO constellations · 340 to 1,200 km',sso:'Dawn-dusk sun-synchronous orbit · data centres',meo:'MEO navigation · about 20,200 km',geo:'GEO · 35,786 km',moon:'Moon · 384,400 km'};
 var ORB=[];
 (function(){
   function add(g,r,i,node,n,size,sq){ORB.push({g:g,r:r,i:i*Math.PI/180,node:node*Math.PI/180,n:n,size:size,sq:sq,ph:ORB.length*1.7});}
-  add('iss',.235,51.6,40,1,2);
-  [0,60,120,180,240,300].forEach(function(nd){add('leo',.25,53,nd,30,.5);});
-  [20,110,200,290].forEach(function(nd){add('leo',.262,70,nd,26,.5);});
-  [45,135].forEach(function(nd){add('leo',.276,87,nd,24,.5);});
-  [0,90,180,270].forEach(function(nd){add('leo',.292,43,nd,22,.5);});
-  add('sso',.305,98,75,7,1.4,true);
-  [0,120,240].forEach(function(nd){add('meo',.47,55,nd,4,1.3);});
-  add('geo',.66,0,0,8,1.4);
-  add('moon',.93,5,200,1,0);
+  add('iss',.258,51.6,40,1,2);
+  [0,60,120,180,240,300].forEach(function(nd){add('leo',.275,53,nd,30,.55);});
+  [20,110,200,290].forEach(function(nd){add('leo',.288,70,nd,26,.55);});
+  [45,135].forEach(function(nd){add('leo',.304,87,nd,24,.55);});
+  [0,90,180,270].forEach(function(nd){add('leo',.321,43,nd,22,.55);});
+  add('sso',.336,98,75,7,1.4,true);
+  [0,120,240].forEach(function(nd){add('meo',.5,55,nd,4,1.4);});
+  add('geo',.68,0,0,8,1.5);
+  add('moon',.9,5,200,1,0);
 })();
-var KW=(2*Math.PI/22)*Math.pow(.235,1.5), SEG=72;
+var KW=(2*Math.PI/22)*Math.pow(.235,1.5), SEG=72, DCAM=3.1, vAz=0, vEl=EL0;
+var TRAIL={iss:.8,sso:.3,meo:.42,geo:.36,moon:1.15};
 function drawOrbits(t){
   tNow=t;
   var w=oc.clientWidth, hh=oc.clientHeight; if(!w)return; var d=Math.min(window.devicePixelRatio||1,2);
   if(oc.width!==Math.round(w*d)){oc.width=Math.round(w*d);oc.height=Math.round(hh*d);}
   ox.setTransform(d,0,0,d,0,0); ox.clearRect(0,0,w,hh);
-  var c=w/2, cy=hh/2, S=w/2, rE=.2*S, cr=Math.cos(ROT), sr=Math.sin(ROT), se=Math.sin(EL), ce=Math.cos(EL);
+  /* The camera drifts a little by itself and leans toward the pointer, and nearer things are drawn larger,
+     so the orbits read as three-dimensional. */
+  if(calm){vAz=0;vEl=EL0;}
+  else{
+    var tAz=.32*Math.sin(t*.19), tEl=EL0+.08*Math.sin(t*.13+1);
+    if(ptr){tAz+=(ptr.x/w-.5)*.7; tEl+=(.5-ptr.y/hh)*.3;}
+    vAz+=(tAz-vAz)*.06; vEl+=(tEl-vEl)*.06;
+  }
+  var c=w/2, cy=hh/2, S=w/2, rE=.22*S, cr=Math.cos(ROT), sr=Math.sin(ROT), se=Math.sin(vEl), ce=Math.cos(vEl);
   function proj(o,a){
-    var x=Math.cos(a)*o.r, y=Math.sin(a)*o.r, y2=y*Math.cos(o.i), z=y*Math.sin(o.i);
-    var X=x*Math.cos(o.node)-y2*Math.sin(o.node), Y=x*Math.sin(o.node)+y2*Math.cos(o.node);
-    var sx=X, sy=Y*se-z*ce;
-    return [c+(sx*cr-sy*sr)*S, cy+(sx*sr+sy*cr)*S, Y*ce+z*se];
+    var x=Math.cos(a)*o.r, y=Math.sin(a)*o.r, y2=y*Math.cos(o.i), z=y*Math.sin(o.i), nd=o.node+vAz;
+    var X=x*Math.cos(nd)-y2*Math.sin(nd), Y=x*Math.sin(nd)+y2*Math.cos(nd);
+    var dep=Y*ce+z*se, k=DCAM/(DCAM-dep), sx=X*k, sy=(Y*se-z*ce)*k;
+    return [c+(sx*cr-sy*sr)*S, cy+(sx*sr+sy*cr)*S, dep, k];
   }
   // which ring is the pointer on?
   hot=null;
-  if(ptr){var best=13; ORB.forEach(function(o){if(o.g==='moon'){var mq=proj(o,o.ph-t*KW*Math.pow(o.r,-1.5)); if(Math.hypot(mq[0]-ptr.x,mq[1]-ptr.y)<.07*S){best=0;hot='moon';} return;} for(var k=0;k<SEG;k++){var p=proj(o,k/SEG*6.2832), dd=Math.hypot(p[0]-ptr.x,p[1]-ptr.y); if(dd<best){best=dd;hot=o.g;}}});}
+  if(ptr){var best=13; ORB.forEach(function(o){if(o.g==='moon'){var mq=proj(o,o.ph-t*KW*Math.pow(o.r,-1.5)); if(Math.hypot(mq[0]-ptr.x,mq[1]-ptr.y)<.1*S){best=0;hot='moon';} return;} for(var k=0;k<SEG;k++){var p=proj(o,k/SEG*6.2832), dd=Math.hypot(p[0]-ptr.x,p[1]-ptr.y); if(dd<best){best=dd;hot=o.g;}}});}
   function pass(front){
     ORB.forEach(function(o){
-      var on=hot===o.g, base=o.g==='leo'?.07:(o.g==='iss'||o.g==='sso'?.16:.2);
-      ox.strokeStyle='rgba(200,206,214,'+base+')'; ox.lineWidth=1; ox.beginPath();
-      var prev=proj(o,0);
-      for(var k=1;k<=SEG;k++){var p=proj(o,k/SEG*6.2832); if(((prev[2]+p[2])/2>=0)===front){ox.moveTo(prev[0],prev[1]);ox.lineTo(p[0],p[1]);} prev=p;}
-      if(ptr)ox.stroke();
-      var wv=KW*Math.pow(o.r,-1.5);
+      var on=hot===o.g, base=o.g==='leo'?.07:(o.g==='iss'||o.g==='sso'?.16:.2), k, p;
+      if(ptr){
+        ox.strokeStyle='rgba(200,206,214,'+(on?base+.25:base)+')'; ox.lineWidth=1; ox.beginPath();
+        var prev=proj(o,0);
+        for(k=1;k<=SEG;k++){p=proj(o,k/SEG*6.2832); if(((prev[2]+p[2])/2>=0)===front){ox.moveTo(prev[0],prev[1]);ox.lineTo(p[0],p[1]);} prev=p;}
+        ox.stroke();
+      }
+      var wv=KW*Math.pow(o.r,-1.5), tr=calm?0:TRAIL[o.g];
       for(var j=0;j<o.n;j++){
-        var q=proj(o,o.ph+j/o.n*6.2832-t*wv); if((q[2]>=0)!==front)continue;
-        if(o.g==='moon'){var mr=.05*S; ox.save(); ox.beginPath(); ox.arc(q[0],q[1],mr,0,6.2832); ox.clip(); if(mImg.complete&&mImg.naturalWidth)ox.drawImage(mImg,q[0]-mr*1.2,q[1]-mr*1.26,mr*2.52,mr*2.52); else{ox.fillStyle='#C9CED6';ox.fill();} ox.restore(); continue;}
-        ox.fillStyle='rgba(244,245,247,'+(on?1:(o.g==='leo'?.7:.9))+')';
-        if(o.sq){ox.fillRect(q[0]-o.size,q[1]-o.size,o.size*2,o.size*2);} else {ox.beginPath(); ox.arc(q[0],q[1],o.size,0,6.2832); ox.fill();}
+        var a=o.ph+j/o.n*6.2832-t*wv, q=proj(o,a);
+        if(tr){ // a short fading streak where it has just been
+          var p0=q; ox.lineCap='round';
+          for(k=1;k<=7;k++){p=proj(o,a+tr*k/7); if(((p0[2]+p[2])/2>=0)===front){ox.strokeStyle='rgba(244,245,247,'+((1-k/8)*(o.g==='moon'?.3:.5)*(front?1:.55)).toFixed(3)+')'; ox.lineWidth=Math.max(.6,(o.g==='moon'?2.2:o.size*1.3)*p[3]*(1-k/9)); ox.beginPath(); ox.moveTo(p0[0],p0[1]); ox.lineTo(p[0],p[1]); ox.stroke();} p0=p;}
+        }
+        if((q[2]>=0)!==front)continue;
+        if(o.g==='moon'){
+          var mr=.068*S*q[3]; ox.save(); ox.beginPath(); ox.arc(q[0],q[1],mr,0,6.2832); ox.clip();
+          if(mImg.complete&&mImg.naturalWidth)ox.drawImage(mImg,q[0]-mr*1.2,q[1]-mr*1.26,mr*2.52,mr*2.52); else{ox.fillStyle='#C9CED6';ox.fill();}
+          // the same sunlight that lights Earth: night on the lower right limb
+          var mg=ox.createLinearGradient(q[0]-mr*.92,q[1]-mr*.38,q[0]+mr*.92,q[1]+mr*.38); mg.addColorStop(0,'rgba(4,6,12,0)'); mg.addColorStop(.5,'rgba(4,6,12,0)'); mg.addColorStop(.86,'rgba(4,6,12,.9)'); mg.addColorStop(1,'rgba(4,6,12,.96)');
+          ox.fillStyle=mg; ox.fillRect(q[0]-mr,q[1]-mr,mr*2,mr*2); ox.restore(); continue;
+        }
+        var sz=o.size*Math.pow(q[3],1.8);
+        ox.fillStyle='rgba(244,245,247,'+((on?1:(o.g==='leo'?.75:.95))*(front?1:.5)).toFixed(2)+')';
+        if(o.sq){ox.fillRect(q[0]-sz,q[1]-sz,sz*2,sz*2);} else {ox.beginPath(); ox.arc(q[0],q[1],sz,0,6.2832); ox.fill();}
       }
     });
   }
   pass(false);
+  var hg=ox.createRadialGradient(c-rE*.1,cy-rE*.05,rE*.96,c-rE*.1,cy-rE*.05,rE*1.34); hg.addColorStop(0,'rgba(120,170,255,.2)'); hg.addColorStop(1,'rgba(120,170,255,0)');
+  ox.fillStyle=hg; ox.beginPath(); ox.arc(c,cy,rE*1.4,0,6.2832); ox.fill();
   ox.save(); ox.beginPath(); ox.arc(c,cy,rE,0,6.2832); ox.clip();
   if(!GLOBE)earthInit();
-  if(GLOBE){earthDraw(t*KW*Math.pow(.66,-1.5)); ox.drawImage(GLOBE.cv,c-rE,cy-rE,rE*2,rE*2);}
+  if(GLOBE){earthDraw(t*KW*Math.pow(.68,-1.5)-vAz,vEl); ox.drawImage(GLOBE.cv,c-rE,cy-rE,rE*2,rE*2);}
   else if(eImg.complete&&eImg.naturalWidth)ox.drawImage(eImg,c-rE*1.065,cy-rE*1.065,rE*2.13,rE*2.13); else{ox.fillStyle='#1F4E8C';ox.fill();}
   ox.restore();
   pass(true);
@@ -528,31 +568,31 @@ function drawOrbits(t){
   }
 }
 /* Earth as a turning globe: NASA surface map, lit from one side, turning west to east in step with the geostationary ring.
-   Orbit angles run backwards on screen (the view is from the north with +Y toward the viewer), so prograde motion is minus t. */
+   Orbit angles run backwards on screen (the view is from the north with +Y toward the viewer), so prograde motion is minus t.
+   The map lookup is redone each frame because the camera's height changes. */
 function earthInit(){
   if(!tImg.complete||!tImg.naturalWidth)return;
   var TW=1024,TH=512,tc=document.createElement('canvas'); tc.width=TW; tc.height=TH; var tx=tc.getContext('2d'); tx.drawImage(tImg,0,0,TW,TH);
   var td; try{td=tx.getImageData(0,0,TW,TH).data;}catch(e){return;}
-  var n=176, cv=document.createElement('canvas'); cv.width=cv.height=n; var gx=cv.getContext('2d'), im=gx.createImageData(n,n);
-  var row=new Int32Array(n*n), lon=new Float32Array(n*n), day=new Float32Array(n*n), rim=new Float32Array(n*n), al=new Uint8Array(n*n);
-  var cr=Math.cos(ROT), sr=Math.sin(ROT), se=Math.sin(EL), ce=Math.cos(EL), sun=[-.72,.3,.63];
+  var n=208, cv=document.createElement('canvas'); cv.width=cv.height=n; var gx=cv.getContext('2d'), im=gx.createImageData(n,n);
+  var sxa=new Float32Array(n*n), upa=new Float32Array(n*n), za=new Float32Array(n*n), day=new Float32Array(n*n), rim=new Float32Array(n*n), al=new Uint8Array(n*n);
+  var cr=Math.cos(ROT), sr=Math.sin(ROT), sun=[-.72,.3,.63];
   for(var y=0;y<n;y++)for(var x=0;x<n;x++){
     var px=(x+.5-n/2)/(n/2), py=(y+.5-n/2)/(n/2), r2=px*px+py*py, i=y*n+x; if(r2>=1){al[i]=0;continue;}
-    var z=Math.sqrt(1-r2), sx=px*cr+py*sr, up=-(-px*sr+py*cr);
-    var nn=up*ce+z*se, ex=sx, ey=-up*se+z*ce;
-    row[i]=Math.min(TH-1,Math.max(0,Math.round((.5-Math.asin(Math.max(-1,Math.min(1,nn)))/Math.PI)*TH)))*TW;
-    lon[i]=Math.atan2(ex,ey);
+    var z=Math.sqrt(1-r2); sxa[i]=px*cr+py*sr; upa[i]=-(-px*sr+py*cr); za[i]=z;
     var nl=px*sun[0]-py*sun[1]+z*sun[2], d=Math.max(0,Math.min(1,(nl+.1)/.34)); day[i]=d*d*(3-2*d);
     rim[i]=Math.pow(1-z,2.2); al[i]=Math.round(255*Math.max(0,Math.min(1,(1-Math.sqrt(r2))*n/2/1.3)));
   }
-  GLOBE={cv:cv,gx:gx,im:im,td:td,row:row,lon:lon,day:day,rim:rim,al:al,n:n,TW:TW};
+  GLOBE={cv:cv,gx:gx,im:im,td:td,sx:sxa,up:upa,z:za,day:day,rim:rim,al:al,n:n,TW:TW,TH:TH};
 }
-function earthDraw(spin){
-  var g=GLOBE, o=g.im.data, td=g.td, N=g.n*g.n, TW=g.TW, k=TW/6.2832;
+function earthDraw(spin,el){
+  var g=GLOBE, o=g.im.data, td=g.td, N=g.n*g.n, TW=g.TW, TH=g.TH, k=TW/6.2832, se=Math.sin(el), ce=Math.cos(el);
   for(var i=0;i<N;i++){
     var j=i*4; if(!g.al[i]){o[j+3]=0;continue;}
-    var col=Math.floor((g.lon[i]-spin)*k+TW/2)%TW; if(col<0)col+=TW;
-    var s=(g.row[i]+col)*4, d=g.day[i], lit=.04+.96*d, a=g.rim[i]*d;
+    var up=g.up[i], z=g.z[i], nn=up*ce+z*se, ey=z*ce-up*se;
+    var row=Math.round((.5-Math.asin(nn<-1?-1:nn>1?1:nn)/Math.PI)*TH); if(row<0)row=0; else if(row>TH-1)row=TH-1;
+    var col=Math.floor((Math.atan2(g.sx[i],ey)-spin)*k+TW/2)%TW; if(col<0)col+=TW;
+    var s=(row*TW+col)*4, d=g.day[i], lit=.04+.96*d, a=g.rim[i]*d;
     o[j]=td[s]*lit+4*(1-d)+70*a; o[j+1]=td[s+1]*lit+7*(1-d)+120*a; o[j+2]=td[s+2]*lit+16*(1-d)+200*a; o[j+3]=g.al[i];
   }
   g.gx.putImageData(g.im,0,0);
@@ -600,7 +640,7 @@ chips.addEventListener('focusin',function(e){var b=e.target.closest('.cb'); if(b
 
 
 /* shop: Shopify Buy Button, restyled to the site. Add more products by adding their ids to PRODUCTS. */
-var SHOP={domain:'zczkrj-r8.myshopify.com',token:'040a5ed05be778e34f53d061cdfac365',PRODUCTS:[{id:'10437009080545',node:'shopify-product-1'},{id:'10437043192033',node:'shopify-product-2'}]};
+var SHOP={domain:'zczkrj-r8.myshopify.com',token:'040a5ed05be778e34f53d061cdfac365',PRODUCTS:[{id:'10437009080545',node:'shopify-product-1',gal:'gal-1'},{id:'10437043192033',node:'shopify-product-2',gal:'gal-2',extra:[{src:'img/tee-back-art.jpg',alt:'The print on the back of the tee, close up'}]}]};
 var shopStarted=false, wentToCheckout=false;
 /* Checkout happens in a separate Shopify window, so the cart here only learns the order went through when it re-checks.
    When the visitor comes back from checkout, reload so the cart re-checks and empties if the order completed. */
@@ -614,12 +654,25 @@ function startShop(){
   var INK='#07080B', PAPER='#FFFFFF', SOFT='#333A45', MUTE='#565E6B', RULE='#D0D4DB';
   var BTN={'font-family':DISPLAY,'font-weight':'800','font-size':'19px','letter-spacing':'0.14em','text-transform':'uppercase','padding':'16px 26px','border-radius':'0','background-color':INK,'color':'#F4F5F7',':hover':{'background-color':'#1C212B','color':'#FFFFFF'},':focus':{'background-color':'#1C212B','color':'#FFFFFF'}};
   var WIDE={'width':'100%','display':'block'}, k; for(k in BTN)WIDE[k]=BTN[k];
-  /* A product with one photo does not need gallery arrows or a thumbnail strip. */
-  function tidyGallery(c){try{
-    if(c.model.images.length>1)return;
-    var d=c.view.document||c.node.ownerDocument;
-    [].forEach.call(d.querySelectorAll('.carousel-button,.shopify-buy__carousel'),function(e){e.style.display='none';});
-    if(c.view.resize)c.view.resize();
+  /* Our own photo gallery, so we can add pictures that are not on the Shopify listing (PRODUCTS[].extra).
+     It is built from the product's Shopify photos plus the extras; once it is up, the widget's own photo is hidden.
+     If anything here fails, the widget's photo simply stays. */
+  function sized(u,w){return /cdn\.shopify\.com/.test(u)?u+(u.indexOf('?')<0?'?':'&')+'width='+w:u;}
+  function gallery(p,c){try{
+    var fr=c.node.querySelector('iframe'), d=fr&&fr.contentDocument, box=$(p.gal); if(!d||!box)return;
+    if(!box.firstChild){
+      var imgs=(c.model.images||[]).map(function(i){return {src:i.src||i.url,alt:i.altText||c.model.title};}).filter(function(i){return i.src;}).concat(p.extra||[]);
+      if(!imgs.length)return;
+      var at=0, main=document.createElement('div'), big=document.createElement('img'), thumbs=document.createElement('div'); main.className='main'; thumbs.className='thumbs'; main.appendChild(big);
+      function show(n){at=(n+imgs.length)%imgs.length; big.src=sized(imgs[at].src,1000); big.alt=imgs[at].alt||''; [].forEach.call(thumbs.children,function(b,i){b.setAttribute('aria-pressed',i===at?'true':'false');});}
+      if(imgs.length>1){
+        [['p','‹','Previous photo',-1],['n','›','Next photo',1]].forEach(function(a){var b=document.createElement('button'); b.type='button'; b.className='nav '+a[0]; b.textContent=a[1]; b.setAttribute('aria-label',a[2]); b.addEventListener('click',function(){show(at+a[3]);}); main.appendChild(b);});
+        imgs.forEach(function(im,i){var b=document.createElement('button'), t=document.createElement('img'); b.type='button'; b.setAttribute('aria-label','Photo '+(i+1)+' of '+imgs.length); t.src=sized(im.src,160); t.alt=''; t.loading='lazy'; b.appendChild(t); b.addEventListener('click',function(){show(i);}); thumbs.appendChild(b);});
+      }
+      show(0); box.appendChild(main); if(imgs.length>1)box.appendChild(thumbs); box.hidden=false;
+    }
+    [].forEach.call(d.querySelectorAll('.shopify-buy__product-img-wrapper'),function(e){e.style.display='none';});
+    if(c.view&&c.view.resize)c.view.resize();
   }catch(e){}}
   var options={
     product:{
@@ -627,7 +680,6 @@ function startShop(){
       contents:{img:false,imgWithCarousel:true,title:true,price:true,options:true,quantity:false,button:true,description:false},
       text:{button:'Add to cart'},
       googleFonts:['Barlow Condensed','Barlow'],
-      events:{afterRender:tidyGallery},
       styles:{
         product:{'text-align':'left','@media (min-width: 601px)':{'max-width':'100%','margin-left':'0','margin-bottom':'0'}},
         img:{'background-color':PAPER},
@@ -657,7 +709,7 @@ function startShop(){
     try{
       var client=ShopifyBuy.buildClient({domain:SHOP.domain,storefrontAccessToken:SHOP.token});
       ShopifyBuy.UI.onReady(client).then(function(ui){
-        SHOP.PRODUCTS.forEach(function(p){ui.createComponent('product',{id:p.id,node:$(p.node),moneyFormat:'%24%7B%7Bamount%7D%7D',options:options});});
+        SHOP.PRODUCTS.forEach(function(p){var o={}, k; for(k in options)o[k]=options[k]; o.product={}; for(k in options.product)o.product[k]=options.product[k]; o.product.events={afterRender:function(c){gallery(p,c);}}; ui.createComponent('product',{id:p.id,node:$(p.node),moneyFormat:'%24%7B%7Bamount%7D%7D',options:o});});
         note.hidden=true;
       }).catch(fail);
     }catch(e){fail();}
@@ -667,8 +719,6 @@ function startShop(){
   sc.onload=init; sc.onerror=fail; document.head.appendChild(sc);
   setTimeout(function(){if(!$('shopify-product-1').children.length)fail();},9000);
 }
-
-$('totee').addEventListener('click',function(){var t=$('shopify-product-2');if(t&&t.scrollIntoView)t.scrollIntoView({behavior:calm?'auto':'smooth',block:'start'});});
 
 /* worlds */
 var wrow=$('worlds'), wview=$('wview'), wname=$('wname'), wtext=$('wtext');
