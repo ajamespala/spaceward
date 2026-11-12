@@ -543,7 +543,11 @@ chips.addEventListener('focusin',function(e){var b=e.target.closest('.cb'); if(b
 
 /* shop: Shopify Buy Button, restyled to the site. Add more products by adding their ids to PRODUCTS. */
 var SHOP={domain:'zczkrj-r8.myshopify.com',token:'040a5ed05be778e34f53d061cdfac365',PRODUCTS:[{id:'10437009080545',node:'shopify-product-1'}]};
-var shopStarted=false;
+var shopStarted=false, wentToCheckout=false;
+/* Checkout happens in a separate Shopify window, so the cart here only learns the order went through when it re-checks.
+   When the visitor comes back from checkout, reload so the cart re-checks and empties if the order completed. */
+function backFromCheckout(){if(wentToCheckout&&document.visibilityState==='visible'){wentToCheckout=false;try{location.hash='shop';}catch(e){}location.reload();}}
+window.addEventListener('focus',backFromCheckout); document.addEventListener('visibilitychange',backFromCheckout);
 function startShop(){
   if(shopStarted)return; shopStarted=true;
   var note=$('storenote');
@@ -569,6 +573,7 @@ function startShop(){
     },
     option:{styles:{label:{'font-family':DISPLAY,'font-weight':'700','color':'#8D95A3','text-transform':'uppercase','letter-spacing':'0.14em'},select:{'font-family':BODY}},googleFonts:['Barlow Condensed','Barlow']},
     cart:{
+      events:{openCheckout:function(){wentToCheckout=true;}},
       text:{title:'Cart',total:'Subtotal',button:'Checkout',notice:'Shipping and taxes are calculated at checkout.'},
       googleFonts:['Barlow Condensed','Barlow'],
       styles:{cart:{'background-color':'#11141A'},header:{'color':'#F4F5F7'},title:{'font-family':DISPLAY,'color':'#F4F5F7'},lineItems:{'color':'#F4F5F7'},subtotalText:{'font-family':BODY,'color':'#C9CED6'},subtotal:{'font-family':BODY,'color':'#F4F5F7'},notice:{'font-family':BODY,'color':'#8D95A3'},currency:{'color':'#8D95A3'},close:{'color':'#F4F5F7',':hover':{'color':'#FFFFFF'}},empty:{'font-family':BODY,'color':'#C9CED6'},noteDescription:{'color':'#C9CED6'},discountText:{'color':'#F4F5F7'},discountIcon:{'fill':'#F4F5F7'},discountAmount:{'color':'#F4F5F7'},footer:{'background-color':'#11141A'},button:BTN}
