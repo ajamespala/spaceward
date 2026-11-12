@@ -498,14 +498,13 @@ var ORB=[];
   add('moon',.9,5,200,1,0);
 })();
 var KW=(2*Math.PI/22)*Math.pow(.235,1.5), SEG=72, DCAM=3.1, vAz=0, vEl=EL0;
-var TRAIL={iss:.8,sso:.3,meo:.42,geo:.36,moon:1.15};
 function drawOrbits(t){
   tNow=t;
   var w=oc.clientWidth, hh=oc.clientHeight; if(!w)return; var d=Math.min(window.devicePixelRatio||1,2);
   if(oc.width!==Math.round(w*d)){oc.width=Math.round(w*d);oc.height=Math.round(hh*d);}
   ox.setTransform(d,0,0,d,0,0); ox.clearRect(0,0,w,hh);
   /* The camera drifts a little by itself and leans toward the pointer, and nearer things are drawn larger,
-     so the orbits read as three-dimensional. */
+     so the orbits read as three-dimensional. No trails behind the satellites or the Moon: James does not like them. */
   if(calm){vAz=0;vEl=EL0;}
   else{
     var tAz=.32*Math.sin(t*.19), tEl=EL0+.08*Math.sin(t*.13+1);
@@ -531,13 +530,9 @@ function drawOrbits(t){
         for(k=1;k<=SEG;k++){p=proj(o,k/SEG*6.2832); if(((prev[2]+p[2])/2>=0)===front){ox.moveTo(prev[0],prev[1]);ox.lineTo(p[0],p[1]);} prev=p;}
         ox.stroke();
       }
-      var wv=KW*Math.pow(o.r,-1.5), tr=calm?0:TRAIL[o.g];
+      var wv=KW*Math.pow(o.r,-1.5);
       for(var j=0;j<o.n;j++){
         var a=o.ph+j/o.n*6.2832-t*wv, q=proj(o,a);
-        if(tr){ // a short fading streak where it has just been
-          var p0=q; ox.lineCap='round';
-          for(k=1;k<=7;k++){p=proj(o,a+tr*k/7); if(((p0[2]+p[2])/2>=0)===front){ox.strokeStyle='rgba(244,245,247,'+((1-k/8)*(o.g==='moon'?.3:.5)*(front?1:.55)).toFixed(3)+')'; ox.lineWidth=Math.max(.6,(o.g==='moon'?2.2:o.size*1.3)*p[3]*(1-k/9)); ox.beginPath(); ox.moveTo(p0[0],p0[1]); ox.lineTo(p[0],p[1]); ox.stroke();} p0=p;}
-        }
         if((q[2]>=0)!==front)continue;
         if(o.g==='moon'){
           var mr=.068*S*q[3]; ox.save(); ox.beginPath(); ox.arc(q[0],q[1],mr,0,6.2832); ox.clip();
