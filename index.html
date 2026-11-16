@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SPACEWARD</title>
 <link rel="canonical" href="https://gospaceward.com/">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<meta name="theme-color" content="#07080B">
+<meta property="og:title" content="SPACEWARD.">
+<meta property="og:description" content="The frontier did not close. It moved up.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gospaceward.com/">
+<meta property="og:image" content="https://gospaceward.com/img/share.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <script>if(/(^|\.)expandspaceward\.com$/i.test(location.hostname)||location.hostname==='www.gospaceward.com'){location.replace('https://gospaceward.com'+location.pathname+location.hash);}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Barlow:wght@400;500&display=swap">
@@ -41,6 +51,8 @@ body[data-view="shop"] #shop,body[data-view="manifesto"] #manifesto{display:bloc
 .alt{font-family:var(--display);font-weight:500;font-size:17px;letter-spacing:.18em;color:var(--steel);font-variant-numeric:tabular-nums;text-transform:uppercase}
 h1,h2,h3{margin:0;font-family:var(--display);font-weight:800;line-height:.92;letter-spacing:.01em;text-wrap:balance;text-transform:uppercase}
 h1{font-size:clamp(52px,min(7.4vw,14vh),108px)}
+h1.lh{margin:0;line-height:0;width:100%}
+h1.lh svg{display:block;width:min(100%,580px);height:auto}
 .h2s{font-size:clamp(36px,4.4vw,60px)}
 h2{font-size:clamp(42px,6vw,84px)}
 h3{font-size:clamp(26px,3vw,34px);line-height:1}
@@ -55,7 +67,9 @@ p{margin:0;max-width:34em;color:#C9CED6}
 .note{font-size:15px;color:var(--steel)}
 .bar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px clamp(16px,4vw,40px);background:linear-gradient(to bottom,rgba(7,8,11,.9),rgba(7,8,11,0))}
 .brand{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--star);cursor:pointer;padding:6px 0;font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:.2em}
-.mark{width:34px;height:34px;flex:none}
+.mark{width:48px;height:34px;flex:none}
+.brand span{display:flex}
+.wm{height:16px;width:auto;display:block}
 .bar nav{display:flex;gap:clamp(14px,3vw,34px)}
 .bar nav button,.bar nav a{background:none;border:0;text-decoration:none;display:inline-block;color:var(--star);cursor:pointer;padding:12px 0;font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:.18em;text-transform:uppercase;border-bottom:1px solid transparent}
 .bar nav button:hover,.bar nav a:hover,.bar nav button[aria-current="page"]{border-bottom-color:var(--star)}
@@ -247,7 +261,7 @@ body[data-view="shop"] .bar :focus-visible{outline-color:var(--void)}
 <canvas id="stars" aria-hidden="true"></canvas>
 
 <header class="bar">
-<button class="brand" type="button" data-go="home" aria-label="SPACEWARD. Home"><svg class="mark" viewBox="-116 -116 232 232" aria-hidden="true"><g transform="translate(0 5)"><path transform="translate(0 -48)" d="M 0 -58 Q 6.96 -6.96 58 0 Q 6.96 6.96 0 58 Q -6.96 6.96 -58 0 Q -6.96 -6.96 0 -58 Z" fill="currentColor"></path><path d="M -100 87 A 130 130 0 0 1 100 87" fill="none" stroke="currentColor" stroke-width="14"></path></g></svg><span>SPACEWARD.</span></button>
+<button class="brand" type="button" data-go="home" aria-label="SPACEWARD. Home"><svg class="mark" viewBox="-116 -72 232 164" aria-hidden="true"><defs><clipPath id="hbc"><path clip-rule="evenodd" d="M -300 -300 H 300 V 300 H -300 Z M -140 158.7 A 140 140 0 1 0 140 158.7 A 140 140 0 1 0 -140 158.7 Z"/></clipPath></defs><g clip-path="url(#hbc)"><circle cx="30" cy="11.2" r="23.5" fill="none" stroke="currentColor" stroke-width="9"/><path d="M 10.2 -8.6 A 28 28 0 0 1 49.8 31.0 A 28 14.0 225 0 0 10.2 -8.6 Z" fill="currentColor"/></g><path d="M -106 80 A 132 132 0 0 1 106 80 A 205 205 0 0 0 -106 80 Z" fill="currentColor"/><circle cx="78" cy="-50.8" r="9.5" fill="currentColor"/></svg><span><svg class="wm" viewBox="0 -4 945.7 108" aria-hidden="true"><g transform="translate(0.0 0)"><path d="M 77.5 8.5 L 29.2 8.5 A 20.7 20.7 0 0 0 29.2 50.0 L 56.7 50.0 A 20.7 20.7 0 0 1 56.7 91.5 L 8.5 91.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(99.9 0)"><path d="M 8.5 100 L 8.5 8.5 L 55.5 8.5 A 20.0 20.0 0 0 1 55.5 48.5 L 8.5 48.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(185.1 0)"><path d="M 50.0 -3.0 L 100.0 100.0 L 80.2 100.0 L 50.0 39.4 L 19.7 100.0 L 0.0 100.0 Z" fill="currentColor"/></g><g transform="translate(293.1 0)"><path d="M 84.0 8.5 L 34.5 8.5 A 26.0 26.0 0 0 0 8.5 34.5 L 8.5 65.5 A 26.0 26.0 0 0 0 34.5 91.5 L 84.0 91.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(391.0 0)"><path d="M 78.0 8.5 L 34.5 8.5 A 26.0 26.0 0 0 0 8.5 34.5 L 8.5 65.5 A 26.0 26.0 0 0 0 34.5 91.5 L 78.0 91.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M 8.5 50.0 L 72.9 50.0" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(481.3 0)"><path d="M 0.0 0.0 L 19.7 0.0 L 40.0 50.7 L 60.2 0.0 L 80.0 0.0 L 40.0 103.0 Z" fill="currentColor"/><path d="M 60.2 0.0 L 80.0 0.0 L 100.2 50.7 L 120.5 0.0 L 140.2 0.0 L 100.2 103.0 Z" fill="currentColor"/></g><g transform="translate(619.3 0)"><path d="M 50.0 -3.0 L 100.0 100.0 L 80.2 100.0 L 50.0 39.4 L 19.7 100.0 L 0.0 100.0 Z" fill="currentColor"/></g><g transform="translate(728.2 0)"><path d="M 8.5 100 L 8.5 8.5 L 57.5 8.5 A 20.0 20.0 0 0 1 57.5 48.5 L 8.5 48.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M 37.7 47.5 L 57.1 47.5 L 87.7 100.0 L 68.3 100.0 Z" fill="currentColor"/></g><g transform="translate(828.1 0)"><path d="M 8.5 8.5 L 51.5 8.5 A 30.0 30.0 0 0 1 81.5 38.5 L 81.5 61.5 A 30.0 30.0 0 0 1 51.5 91.5 L 8.5 91.5 Z" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(928.6 0)"><path d="M 0.0 83.0 L 17.0 83.0 L 17.0 100.0 L 0.0 100.0 Z" fill="currentColor"/></g></svg></span></button>
 <nav aria-label="Site">
 <a href="https://astronomics.substack.com/" target="_blank" rel="noopener">Astronomics</a>
 <button type="button" class="shopbtn" data-view-to="shop">Shop</button>
@@ -259,7 +273,7 @@ body[data-view="shop"] .bar :focus-visible{outline-color:var(--void)}
 
 <section class="stage" id="home" data-name="Home" data-km="0">
 <div class="inner"><div class="copy">
-<h1>Expand<br>Spaceward.</h1>
+<h1 class="lh" aria-label="Expand Spaceward."><svg viewBox="0 -4 945.7 244" aria-hidden="true"><g transform="translate(0.0 0)"><path d="M 78.0 8.5 L 34.5 8.5 A 26.0 26.0 0 0 0 8.5 34.5 L 8.5 65.5 A 26.0 26.0 0 0 0 34.5 91.5 L 78.0 91.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M 8.5 50.0 L 72.9 50.0" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(90.2 0)"><path d="M 0.0 0.0 L 19.7 0.0 L 94.0 100.0 L 74.2 100.0 Z" fill="currentColor"/><path d="M 94.0 0.0 L 74.2 0.0 L 0.0 100.0 L 19.7 100.0 Z" fill="currentColor"/></g><g transform="translate(196.4 0)"><path d="M 8.5 100 L 8.5 8.5 L 55.5 8.5 A 20.0 20.0 0 0 1 55.5 48.5 L 8.5 48.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(281.6 0)"><path d="M 50.0 -3.0 L 100.0 100.0 L 80.2 100.0 L 50.0 39.4 L 19.7 100.0 L 0.0 100.0 Z" fill="currentColor"/></g><g transform="translate(390.5 0)"><path d="M 0.0 0.0 L 17.0 0.0 L 17.0 100.0 L 0.0 100.0 Z" fill="currentColor"/><path d="M 75.0 0.0 L 92.0 0.0 L 92.0 100.0 L 75.0 100.0 Z" fill="currentColor"/><path d="M 0.0 0.0 L 19.7 0.0 L 92.0 100.0 L 72.2 100.0 Z" fill="currentColor"/></g><g transform="translate(496.4 0)"><path d="M 8.5 8.5 L 51.5 8.5 A 30.0 30.0 0 0 1 81.5 38.5 L 81.5 61.5 A 30.0 30.0 0 0 1 51.5 91.5 L 8.5 91.5 Z" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(0 136)"><g transform="translate(0.0 0)"><path d="M 77.5 8.5 L 29.2 8.5 A 20.7 20.7 0 0 0 29.2 50.0 L 56.7 50.0 A 20.7 20.7 0 0 1 56.7 91.5 L 8.5 91.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(99.9 0)"><path d="M 8.5 100 L 8.5 8.5 L 55.5 8.5 A 20.0 20.0 0 0 1 55.5 48.5 L 8.5 48.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(185.1 0)"><path d="M 50.0 -3.0 L 100.0 100.0 L 80.2 100.0 L 50.0 39.4 L 19.7 100.0 L 0.0 100.0 Z" fill="currentColor"/></g><g transform="translate(293.1 0)"><path d="M 84.0 8.5 L 34.5 8.5 A 26.0 26.0 0 0 0 8.5 34.5 L 8.5 65.5 A 26.0 26.0 0 0 0 34.5 91.5 L 84.0 91.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(391.0 0)"><path d="M 78.0 8.5 L 34.5 8.5 A 26.0 26.0 0 0 0 8.5 34.5 L 8.5 65.5 A 26.0 26.0 0 0 0 34.5 91.5 L 78.0 91.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M 8.5 50.0 L 72.9 50.0" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(481.3 0)"><path d="M 0.0 0.0 L 19.7 0.0 L 40.0 50.7 L 60.2 0.0 L 80.0 0.0 L 40.0 103.0 Z" fill="currentColor"/><path d="M 60.2 0.0 L 80.0 0.0 L 100.2 50.7 L 120.5 0.0 L 140.2 0.0 L 100.2 103.0 Z" fill="currentColor"/></g><g transform="translate(619.3 0)"><path d="M 50.0 -3.0 L 100.0 100.0 L 80.2 100.0 L 50.0 39.4 L 19.7 100.0 L 0.0 100.0 Z" fill="currentColor"/></g><g transform="translate(728.2 0)"><path d="M 8.5 100 L 8.5 8.5 L 57.5 8.5 A 20.0 20.0 0 0 1 57.5 48.5 L 8.5 48.5" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/><path d="M 37.7 47.5 L 57.1 47.5 L 87.7 100.0 L 68.3 100.0 Z" fill="currentColor"/></g><g transform="translate(828.1 0)"><path d="M 8.5 8.5 L 51.5 8.5 A 30.0 30.0 0 0 1 81.5 38.5 L 81.5 61.5 A 30.0 30.0 0 0 1 51.5 91.5 L 8.5 91.5 Z" fill="none" stroke="currentColor" stroke-width="17.0" stroke-linejoin="miter" stroke-miterlimit="6"/></g><g transform="translate(928.6 0)"><path d="M 0.0 83.0 L 17.0 83.0 L 17.0 100.0 L 0.0 100.0 Z" fill="currentColor"/></g></g></svg></h1>
 <p class="tag">The frontier did not close.<br>It moved up.</p>
 <div class="row">
 <button class="btn" type="button" data-go="moon">Launch &#8593;</button>
@@ -375,7 +389,7 @@ body[data-view="shop"] .bar :focus-visible{outline-color:var(--void)}
 </div>
 
 <nav class="rail" aria-label="Altitude">
-<div class="ship" id="ship"><svg viewBox="-60 -60 120 120" aria-hidden="true"><path d="M 0 -58 Q 6.96 -6.96 58 0 Q 6.96 6.96 0 58 Q -6.96 6.96 -58 0 Q -6.96 -6.96 0 -58 Z" fill="currentColor"></path></svg><div class="plume"></div></div>
+<div class="ship" id="ship"><svg viewBox="-60 -60 120 120" aria-hidden="true"><circle r="24" fill="currentColor"></circle></svg><div class="plume"></div></div>
 </nav>
 <div class="hud">
 <span class="v" id="altv">0 km</span>
