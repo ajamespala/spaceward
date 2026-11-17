@@ -515,12 +515,14 @@ function frame(){
 function kick(){if(!running&&isAscent()){running=true;requestAnimationFrame(frame);}}
 sky.addEventListener('scroll',kick,{passive:true});
 
-/* home: Earth with its satellites, the Moon, and Mars on a wide slow orbit, drawn in three dimensions.
+/* home: Earth with its satellites, the Moon, and Mars far off, drawn in three dimensions.
    Scene units are Earth-Moon distances; x and y lie in the Moon's orbital plane, z is north. Sizes and spacing are not to scale.
    It opens framed like the logo, with the real bodies standing where the mark has them: Earth's sunlit limb as a crescent of
-   real surface, the Moon behind it lit along one edge, Mars as the dot beyond. Then it pulls back to the whole scene and the
-   headline appears. Three regions can be picked: the Moon, cislunar space, Mars. Picking one flies the view to it and then the
-   page goes up to that pane. Labels show only on hover. Drag turns the view, pinch (or ctrl + wheel) zooms.
+   real surface, the Moon behind it lit along one edge, Mars as the dot beyond. Then it pulls back and the headline appears.
+   After that the scene develops by itself (see "Development over time" below): orbits fill, launches and transfers start,
+   links open to the Moon, lights spread on its surface, cyclers run to Mars, Mars greens. No dates are shown anywhere.
+   Three regions can be picked: the Moon, cislunar space, Mars. Picking one flies the view to it and then the page goes up to
+   that pane. Labels show only on hover. Drag turns the view, pinch (or ctrl + wheel) zooms.
    No trails behind anything and no flat icons for stations or habitats: James does not like either here. */
 var oc=$('orbits'), ox=oc.getContext('2d'), homeEl=$('home'), hcopy=homeEl.querySelector('.copy');
 var eImg=new Image(), mImg=new Image(), rImg=new Image(); eImg.src='img/earth.jpg'; mImg.src='img/moon.jpg'; rImg.src='img/mars.jpg';
@@ -529,16 +531,15 @@ var ROT=-.16, HDC=5, RE=.25, RM=.072, RMARS=.06, EL_I=.33, EL_F=.56, MARSP=[.73,
 var KW=(2*Math.PI/22)*Math.pow(.235,1.5), WM=.03, M0=1.31, GEO_R=.66, WE=KW*Math.pow(GEO_R,-1.5);
 var HV={az:0,el:EL_I,daz:0,del:0,z:1,A:null,B:null,fitW:0,fitH:0};
 var NEAR=[];
-(function(){
-  function add(r,inc,node,n,size,a){NEAR.push({n:n,size:size,a:a,ph:NEAR.length*1.7,w:KW*Math.pow(r,-1.5),fn:ring3([0,0,0],r,inc*Math.PI/180,node*Math.PI/180)});}
-  add(.292,51.6,40,2,1.5,.95);
-  [0,60,120,180,240,300].forEach(function(nd){add(.31,53,nd,30,.55,.75);});
-  [20,110,200,290].forEach(function(nd){add(.325,70,nd,26,.55,.75);});
-  [45,135].forEach(function(nd){add(.343,87,nd,24,.55,.75);});
-  [0,90,180,270].forEach(function(nd){add(.362,43,nd,22,.55,.75);});
-  add(.38,98,75,7,1,.9);
-  [0,120,240].forEach(function(nd){add(.52,55,nd,4,1.3,.95);});
-  add(GEO_R,0,0,8,1.4,.95);
+(function(){ // each ring holds the satellites it will have when fully built; "base" is the share already there today, and the rest appear in an even order
+  function add(r,inc,node,n,size,a,base){var h=[], j; for(j=0;j<n;j++)h.push((j*.618034+NEAR.length*.37)%1); NEAR.push({n:n,size:size,a:a,base:base,h:h,ph:NEAR.length*1.7,w:KW*Math.pow(r,-1.5),fn:ring3([0,0,0],r,inc*Math.PI/180,node*Math.PI/180)});}
+  add(.292,51.6,40,8,1.5,.95,.25);
+  [0,60,120,180,240,300].forEach(function(nd){add(.31,53,nd,54,.55,.75,.55);});
+  [20,110,200,290].forEach(function(nd){add(.325,70,nd,48,.55,.75,.55);});
+  [45,135].forEach(function(nd){add(.343,87,nd,44,.55,.75,.55);});
+  [0,90,180,270].forEach(function(nd){add(.362,43,nd,40,.55,.75,.55);});
+  [0,120,240].forEach(function(nd){add(.52,55,nd,10,1.3,.95,.4);});
+  add(GEO_R,0,0,26,1.4,.95,.3);
 })();
 /* the lit edge of the logo's Moon, in the mark's own drawing units (see brand.py), and its complement for shading */
 var LOGO=null;
@@ -624,6 +625,16 @@ function regionAt(x,y){
 }
 /* picking a place: the view flies to it, and partway through the page starts up to that pane */
 function flyTo(id){if(FLY||INTRO.state!==2)return; if(calm){go(id);return;} FLY={id:id,t0:tNow,went:false};}
+/* Development over time. Nothing here carries a date: one number, dev, goes from 0 (today) to 1 over DEVT seconds after the
+   reveal, and each kind of activity has its own point where it starts. Everything is drawn as points of light and thin
+   lines, never as icons, and nothing leaves a trail. */
+var DEVT=85, SU=[.385,.923], SV=[-.5815,.2426,-.78]; // SU, SV: two directions across the day-night line as seen on screen (the sun is fixed there)
+function hz(n){var x=Math.sin(n*127.1+311.7)*43758.5453; return x-Math.floor(x);}
+var LANES=[[.5,.68,0,.9,.02,0],[-2.2,-.6,0,.92,-.05,0],[1.6,.1,.5,1,0,.1],[-.7,-.14,-.4,1.02,0,-.1]]; // Earth-Moon links: start angle at Earth, bend sideways, bend north, end x y z
+function lane(k,u){var L=LANES[k], v=1-u; return [v*v*.34*Math.cos(L[0])+2*v*u*.5+u*u*L[3], v*v*.34*Math.sin(L[0])+2*v*u*L[1]+u*u*L[4], 2*v*u*L[2]+u*u*L[5]];}
+var MLIGHT=[], MNIGHT=[[.45,.5],[.6,.3],[.3,.7],[.7,.1],[.5,.15],[.2,.5],[.62,.52],[.38,.33],[.52,.68],[.75,.32]];
+(function(){for(var i=0;i<48;i++){var la=Math.max(-1.5,Math.min(1.2,-1.45+i/47*2.2+(hz(i)-.5)*.5)), lo=(hz(i+50)-.5)*2.3; MLIGHT.push([Math.cos(la)*Math.sin(lo),-Math.sin(la)]);}})(); // lights on the Moon, south pole first
+var MSTAGE=[rImg,null,null,null];
 function drawHome(t){
   tNow=t;
   var w=oc.clientWidth, hh=oc.clientHeight; if(!w||!hh)return;
@@ -632,44 +643,80 @@ function drawHome(t){
   var g=ox; g.setTransform(d,0,0,d,0,0); g.clearRect(0,0,w,hh);
   if(HV.fitW!==w||HV.fitH!==hh)fitHome(w,hh);
   var I=introStep(t), live=INTRO.state===2, ts=t-I.tI, fe=0;
+  var dev=calm?.55:Math.max(0,Math.min(1,(ts-5.5)/DEVT));
+  function st(a,b){var v=(dev-a)/(b-a); return v<0?0:v>1?1:v;}
   if(FLY){var fu=(t-FLY.t0)/1.2; fe=sm(fu); if(fu>=.7&&!FLY.went){FLY.went=true; go(FLY.id);} if(fu>3.4){fe=sm((3.4+.7-fu)/.7); if(fu>4.1){FLY=null;fe=0;}}}
   hotR=FLY?FLY.id:((live&&hptr&&!hdrag&&!hpinch)?regionAt(hptr.x,hptr.y):null);
   oc.style.cursor=hdrag&&hdrag.moved>5?'grabbing':(hotR?'pointer':'grab');
   // camera: stays low over the plane, as in the logo, then over about a minute rises to look down on the whole scene; it sways a little, leans to the pointer and follows the drag
-  var rise=calm?0:sm((ts-8)/55), bS=HV.A.S*Math.pow(HV.B.S/HV.A.S,rise), bx=HV.A.ex+(HV.B.ex-HV.A.ex)*rise, by=HV.A.ey+(HV.B.ey-HV.A.ey)*rise;
-  var tAz=HV.daz+(calm?0:.07*Math.sin(Math.max(0,ts-4.6)*.09)), tEl=Math.max(.1,Math.min(1.35,EL_I+(EL_F-EL_I)*rise+HV.del));
+  var rise=calm?0:sm((ts-8)/55), bS=HV.A.S*Math.pow(HV.B.S/HV.A.S,rise), bx=HV.A.ex+(HV.B.ex-HV.A.ex)*rise, by=HV.A.ey+(HV.B.ey-HV.A.ey)*rise, elA=EL_I+(EL_F-EL_I)*rise;
+  var tAz=HV.daz+(calm?0:.07*Math.sin(Math.max(0,ts-4.6)*.09)), tEl=Math.max(.1,Math.min(1.35,elA+HV.del));
   if(hptr&&!hdrag&&!calm&&live&&!FLY)tAz+=(hptr.x/w-.5)*.05;
   if(!live){HV.az=tAz; HV.el=EL_I+(tEl-EL_I)*I.p;}
   else if(calm||hdrag){HV.az=tAz;HV.el=tEl;} else {HV.az+=(tAz-HV.az)*.08; HV.el+=(tEl-HV.el)*.08;}
-  var S1=bS*HV.z, S=S1, ex=bx, ey=by;
+  var S1=bS*HV.z, S=S1, ex=bx, ey=by, mS=bS, mx=bx, my=by;
   if(I.p<1){ // from the logo's framing out to the whole scene, as one steady zoom about a fixed point
     var sl=Math.min(w/250,hh/190), S0=132*sl/RE, fr; S=S0*Math.pow(S1/S0,I.p); fr=(S-S1)/(S0-S1);
-    ex=bx+(w/2-bx)*fr; ey=by+(hh*.46+148.7*sl-by)*fr;
+    ex=bx+(w/2-bx)*fr; ey=by+(hh*.46+148.7*sl-by)*fr; mS=S; mx=ex; my=ey;
   }
-  if(fe>0)S=S1*Math.pow(FLYZ[FLY.id],fe);
   var ca=Math.cos(HV.az), sa=Math.sin(HV.az), se=Math.sin(HV.el), ce=Math.cos(HV.el), cr=Math.cos(ROT), sr=Math.sin(ROT);
   function P(q){var X=q[0]*ca-q[1]*sa, Y=-(q[0]*sa+q[1]*ca), dep=Y*ce+q[2]*se, k=HDC/Math.max(1.1,HDC-dep), px=X*k, py=(Y*se-q[2]*ce)*k; return [ex+(px*cr-py*sr)*S, ey+(px*sr+py*cr)*S, dep, k];}
-  var th=M0+WM*ts, moonAt=[Math.cos(th),Math.sin(th),0], marsAt=MARSP; // Mars does not circle Earth: it stays put, far off
-  if(fe>0){var tq=P(FLY.id==='moon'?moonAt:FLY.id==='mars'?marsAt:[0,0,0]); ex+=(w/2-tq[0])*fe; ey+=(hh*.44-tq[1])*fe;}
-  var W='244,245,247', FS=Math.max(10.5,Math.min(14,w/96)), us=Math.max(.8,Math.min(1.6,S/270)), f=I.f, Rpx=RE*S;
-  function A(v){return (v<0?0:v>1?1:v).toFixed(3);}
-  function trace(fn,n){g.beginPath(); for(var i=0;i<=n;i++){var q=P(fn(i/n*6.2832)); if(i)g.lineTo(q[0],q[1]); else g.moveTo(q[0],q[1]);}}
-  var unit=function(a){return [Math.cos(a),Math.sin(a),0];};
-  // 1. the Moon's orbit, faint on the plane
-  var poly=[]; for(var i=0;i<40;i++){var pq=P([Math.cos(i/40*6.2832)*1.1,Math.sin(i/40*6.2832)*1.1,0]); poly.push([pq[0],pq[1]]);}
-  if(f>0){
-    if(hotR==='cislunar'){trace(unit,72); g.fillStyle='rgba(120,170,255,.075)'; g.fill();}
-    g.lineWidth=1; g.strokeStyle='rgba('+(hotR==='cislunar'||hotR==='moon'?W+',.75':'150,162,184,'+A(.3*f))+')'; trace(unit,96); g.stroke();
+  var th=M0+WM*ts, ct=Math.cos(th), stn=Math.sin(th), moonAt=[ct,stn,0];
+  function F(q){return P([q[0]*ct-q[1]*stn, q[0]*stn+q[1]*ct, q[2]]);} // a point that goes round with the Moon
+  // Mars does not circle Earth and does not swing round when the view is dragged or zoomed: it holds its place, far off, up and to the right
+  var mY=-MARSP[1], mse=Math.sin(elA), mce=Math.cos(elA), mk=HDC/Math.max(1.1,HDC-(mY*mce+MARSP[2]*mse)), mpx=MARSP[0]*mk, mpy=(mY*mse-MARSP[2]*mce)*mk;
+  var RQ=[mx+(mpx*cr-mpy*sr)*mS, my+(mpx*sr+mpy*cr)*mS, RMARS*mk*mS];
+  if(fe>0){ // flying to a place: everything grows about it while it moves to the middle
+    var tq=FLY.id==='moon'?P(moonAt):FLY.id==='mars'?RQ:[ex,ey], Zf=Math.pow(FLYZ[FLY.id],fe), cxf=tq[0]+(w/2-tq[0])*fe, cyf=tq[1]+(hh*.44-tq[1])*fe;
+    ex=cxf+(ex-tq[0])*Zf; ey=cyf+(ey-tq[1])*Zf; S*=Zf; RQ=[cxf+(RQ[0]-tq[0])*Zf, cyf+(RQ[1]-tq[1])*Zf, RQ[2]*Zf];
   }
-  // 2. the bodies, far ones first
+  var W='244,245,247', FS=Math.max(10.5,Math.min(14,w/96)), us=Math.max(.8,Math.min(1.6,S/270)), f=I.f, Rpx=RE*S, MQ;
+  function A(v){return (v<0?0:v>1?1:v).toFixed(3);}
+  function pt(x,y,r,a,col){if(a<=.01)return; g.globalAlpha=a>1?1:a; g.fillStyle=col||'#F4F5F7'; if(r<.75)g.fillRect(x-r,y-r,r*2,r*2); else{g.beginPath();g.arc(x,y,r,0,6.2832);g.fill();} g.globalAlpha=1;}
+  function trace(fn,n,pr,a0,a1){g.beginPath(); a0=a0||0; a1=a1===undefined?6.2832:a1; for(var i=0;i<=n;i++){var q=pr(fn(a0+(a1-a0)*i/n)); if(i)g.lineTo(q[0],q[1]); else g.moveTo(q[0],q[1]);}}
+  var unit=function(a){return [Math.cos(a),Math.sin(a),0];};
+  if(I.m<1){var lx0=ex+.591*Rpx, ly0=ey-1.587*Rpx, lr0=.053*Rpx; RQ=[lx0+(RQ[0]-lx0)*I.m, ly0+(RQ[1]-ly0)*I.m, lr0+(RQ[2]-lr0)*I.m];}
+  // 1. what lies on the plane: the Moon's orbit, the links out to it, the cyclers' loops to Mars
+  var poly=[]; for(var i=0;i<40;i++){var pq=P([Math.cos(i/40*6.2832)*1.1,Math.sin(i/40*6.2832)*1.1,0]); poly.push([pq[0],pq[1]]);}
+  var edx=RQ[0]-ex, edy=RQ[1]-ey, eL=Math.hypot(edx,edy)||1, e1x=edx/eL, e1y=edy/eL, cya=(1.1*eL+1.5*Rpx)/2, cyx=ex-e1x*1.5*Rpx+e1x*cya, cyy=ey-e1y*1.5*Rpx+e1y*cya;
+  function cyc(k,a){var b=cya*.11*(k?-1:1), c=Math.cos(a), s2=Math.sin(a); return [cyx-e1x*cya*c-e1y*b*s2, cyy-e1y*cya*c+e1x*b*s2];} // a = 0 at the Earth end, pi at the Mars end
+  if(f>0){
+    if(hotR==='cislunar'){trace(unit,72,P); g.fillStyle='rgba(120,170,255,.075)'; g.fill();}
+    g.lineWidth=1; g.strokeStyle='rgba('+(hotR==='cislunar'||hotR==='moon'?W+',.75':'150,162,184,'+A(.3*f))+')'; trace(unit,96,P); g.stroke();
+    for(var k=0;k<4;k++){var la=st(.04+.07*k,.14+.07*k); if(la>0){g.strokeStyle='rgba(150,172,214,'+A(.2*la*f)+')'; trace(function(u){return lane(k,u);},24,F,0,1); g.stroke();}}
+    for(k=0;k<2;k++){var cl=st(.4+.15*k,.5+.15*k); if(cl>0){g.strokeStyle='rgba(206,170,150,'+A(.2*cl*f)+')'; g.beginPath(); for(i=0;i<=64;i++){var cq=cyc(k,i/64*6.2832); if(i)g.lineTo(cq[0],cq[1]); else g.moveTo(cq[0],cq[1]);} g.stroke();}}
+  }
+  // 2. the bodies and what moves close to them, far ones first
+  function sso(a){var c=Math.cos(a)*.3, s2=Math.sin(a)*.3; return [ex+(SU[0]*c+SV[0]*s2)*S, ey-(SU[1]*c+SV[1]*s2)*S, SV[2]*s2];}
   function near(front){
-    if(f<=0)return;
-    NEAR.forEach(function(o){
-      for(var j=0;j<o.n;j++){
-        var q=P(o.fn(o.ph+j/o.n*6.2832+t*o.w)); if((q[2]>=0)!==front)continue;
-        g.fillStyle='rgba('+W+','+A(f*(front?1:.5)*o.a)+')'; g.beginPath(); g.arc(q[0],q[1],o.size*Math.pow(q[3],1.8)*us,0,6.2832); g.fill();
+    if(f<=0)return; var i, j, q, a, r;
+    NEAR.forEach(function(o){ // every orbit fills in as time goes on
+      var fr=o.base+(1-o.base)*dev;
+      for(j=0;j<o.n;j++){
+        if(o.h[j]>=fr)continue; q=P(o.fn(o.ph+j/o.n*6.2832+t*o.w)); if((q[2]>=0)!==front)continue;
+        pt(q[0],q[1],o.size*Math.pow(q[3],1.8)*us,f*(front?1:.5)*o.a*Math.min(1,(fr-o.h[j])*14));
       }
     });
+    // the sun-synchronous orbit rides the day-night line; it fills fastest of all, until it reads as a solid line
+    g.lineWidth=1+dev*.9; g.strokeStyle='rgba('+W+','+A(f*(.06+.5*dev)*(front?1:.45))+')'; g.beginPath();
+    for(i=0;i<=40;i++){q=sso((front?3.1416:0)+i/40*3.1416); if(i)g.lineTo(q[0],q[1]); else g.moveTo(q[0],q[1]);} g.stroke();
+    var sf=(7+105*dev)/112, sw=KW*Math.pow(.3,-1.5);
+    for(j=0;j<112;j++){var h=(j*.618034)%1; if(h>=sf)continue; q=sso(j/112*6.2832+t*sw); if((q[2]>=0)!==front)continue; pt(q[0],q[1],.85*us,f*(front?.95:.45)*Math.min(1,(sf-h)*30));}
+    // launches: tiny, frequent, from the turning surface up to low orbit
+    var nl=1+Math.round(9*dev);
+    for(i=0;i<nl;i++){
+      var T=3.2+hz(i+7)*1.6, c=t/T+hz(i)*9, ci=Math.floor(c), u=(c-ci)*T/2.6; if(u>=1)continue;
+      var lat=(hz(ci*3.1+i)-.42)*1.5, lon=hz(ci*7.7+i*2.3)*6.2832+t*WE+.55*u*u, rad=RE+(.31+hz(ci+i*5)*.05-RE)*(1-(1-u)*(1-u)), cl=Math.cos(lat);
+      q=P([rad*cl*Math.cos(lon),rad*cl*Math.sin(lon),rad*Math.sin(lat)]); if((q[2]>=0)!==front)continue;
+      pt(q[0],q[1],.75*us,f*Math.min(1,u*6)*Math.min(1,(1-u)*4),'#FFE6B4');
+    }
+    // transfers from low orbit up to the higher ones
+    var nt=1+Math.round(5*dev);
+    for(i=0;i<nt;i++){
+      var T2=9+hz(i+31)*5, c2=t/T2+hz(i+13)*5, c2i=Math.floor(c2), u2=c2-c2i, r1=hz(c2i+i*3)>.5?GEO_R:.52, e=(r1-.34)/(r1+.34), rr=(.34+r1)/2*(1-e*e)/(1+e*Math.cos(3.1416*u2));
+      q=P(ring3([0,0,0],rr,(hz(c2i*1.7+i)-.5)*.7,hz(c2i*2.9+i)*6.2832)(hz(c2i*5.3+i)*6.2832+3.1416*u2)); if((q[2]>=0)!==front)continue;
+      pt(q[0],q[1],.9*us,f*.9*Math.min(1,u2*8)*Math.min(1,(1-u2)*8),'#FFE6B4');
+    }
   }
   function earth(){
     near(false);
@@ -693,40 +740,72 @@ function drawHome(t){
     }
     near(true);
   }
-  var MQ, RQ;
-  function pic(img,x,y,r,o,sc,fill){if(img.complete&&img.naturalWidth)g.drawImage(img,x-r*o[0],y-r*o[1],r*sc,r*sc); else{g.fillStyle=fill; g.fillRect(x-r,y-r,r*2,r*2);}}
+  function pic(img,x,y,r,o,sc,fill){if(img&&img.complete&&img.naturalWidth)g.drawImage(img,x-r*o[0],y-r*o[1],r*sc,r*sc); else if(fill){g.fillStyle=fill; g.fillRect(x-r,y-r,r*2,r*2);}}
   function ringHot(q){g.strokeStyle='rgba('+W+',.85)'; g.lineWidth=1.2; g.beginPath(); g.arc(q[0],q[1],q[2]*1.5+5,0,6.2832); g.stroke();}
+  var LORB=[[.105,.3,0],[.125,1.4,1],[.15,.9,2.2]];
   function moon(){
-    var q=P(moonAt), x=q[0], y=q[1], r=RM*q[3]*S;
+    var q=P(moonAt), x=q[0], y=q[1], r=RM*q[3]*S, i, j;
     if(I.m<1){var lx=ex+.227*Rpx, ly=ey-1.117*Rpx, lr=.212*Rpx; x=lx+(x-lx)*I.m; y=ly+(y-ly)*I.m; r=lr+(r-lr)*I.m;}
     MQ=[x,y,r]; if(I.b<=0)return;
+    function craft(front){ // ships in orbit round the Moon, more of them as time goes on
+      var n=Math.round(12*st(.12,.6)); for(j=0;j<n;j++){var o=LORB[j%3], c=P(ring3(moonAt,o[0],o[1],o[2])(j*2.4+t*(.5+.13*(j%3)))); if((c[2]>=q[2])===front)pt(c[0],c[1],.9*us,f*(front?.95:.5));}
+    }
+    craft(false);
     g.save(); g.globalAlpha=I.b; g.beginPath(); g.arc(x,y,r,0,6.2832); g.clip(); pic(mImg,x,y,r,[1.2,1.26],2.52,'#C9CED6');
     if(I.m>0){ // lit from the upper left, like Earth, once pulled back
       g.globalAlpha=I.m; var mg=g.createLinearGradient(x-r*.92,y-r*.38,x+r*.92,y+r*.38); mg.addColorStop(0,'rgba(4,6,12,0)'); mg.addColorStop(.5,'rgba(4,6,12,0)'); mg.addColorStop(.86,'rgba(4,6,12,.9)'); mg.addColorStop(1,'rgba(4,6,12,.96)');
       g.fillStyle=mg; g.fillRect(x-r,y-r,r*2,r*2);
     }
     if(I.m<1&&logoPaths().dark){ // in the opening: dark but for the lit edge the logo's Moon has
-      g.globalAlpha=1-I.m; g.translate(x,y); g.scale(r/28,r/28); g.translate(-30,-11.2); g.fillStyle='rgba(4,6,12,.9)'; g.fill(LOGO.dark,'evenodd');
+      g.save(); g.globalAlpha=1-I.m; g.translate(x,y); g.scale(r/28,r/28); g.translate(-30,-11.2); g.fillStyle='rgba(4,6,12,.9)'; g.fill(LOGO.dark,'evenodd'); g.restore();
     }
-    g.restore(); if(hotR==='moon')ringHot(MQ);
+    var nl=Math.round(MLIGHT.length*st(.15,.95)); // settlements: lights on the surface, from the south pole northward
+    for(i=0;i<nl;i++)pt(x+MLIGHT[i][0]*r*.93,y+MLIGHT[i][1]*r*.93,Math.max(.55,r*.028),f*.95,'#FFD9A0');
+    g.restore(); craft(true); if(hotR==='moon')ringHot(MQ);
   }
   function mars(){
-    var q=P(marsAt), x=q[0], y=q[1], r=RMARS*q[3]*S;
-    if(I.m<1){var lx=ex+.591*Rpx, ly=ey-1.587*Rpx, lr=.053*Rpx; x=lx+(x-lx)*I.m; y=ly+(y-ly)*I.m; r=lr+(r-lr)*I.m;}
-    RQ=[x,y,r]; if(I.b<=0)return;
-    g.save(); g.globalAlpha=I.b; g.beginPath(); g.arc(x,y,r,0,6.2832); g.clip(); pic(rImg,x,y,r,[1.087,1.087],2.174,'#B4623C'); g.restore(); if(hotR==='mars')ringHot(RQ);
+    var x=RQ[0], y=RQ[1], r=RQ[2], i; if(I.b<=0)return;
+    var tf=st(.5,1)*3, lo=Math.floor(tf), hi=Math.min(3,lo+1); // terraforming: today's Mars gives way to the later stages
+    if(dev>.38)for(i=1;i<4;i++)if(!MSTAGE[i]){MSTAGE[i]=new Image(); MSTAGE[i].src='img/mars'+i+'.jpg';}
+    g.save(); g.beginPath(); g.arc(x,y,r,0,6.2832); g.clip(); g.globalAlpha=I.b; pic(rImg,x,y,r,[1.087,1.087],2.174,'#B4623C');
+    if(tf>0){pic(MSTAGE[Math.min(3,lo)],x,y,r,[1.087,1.087],2.174); if(hi>lo){g.globalAlpha=tf-lo; pic(MSTAGE[hi],x,y,r,[1.087,1.087],2.174);}}
+    g.globalAlpha=1; var nn=Math.round(MNIGHT.length*st(.66,1)); for(i=0;i<nn;i++)pt(x+MNIGHT[i][0]*r,y+MNIGHT[i][1]*r,Math.max(.5,r*.035),f*.9,'#FFD9A0');
+    g.restore();
+    var no=Math.round(6*st(.48,.9)); for(i=0;i<no;i++){var a=i*1.9+t*(.5+.1*(i%3)), rr=r*(1.5+.28*(i%3)); pt(x+Math.cos(a)*rr,y+Math.sin(a)*rr*.34+Math.cos(a)*rr*.12,.8*us,f*(Math.sin(a)>0?.95:.5));}
+    if(hotR==='mars')ringHot(RQ);
   }
-  [[0,earth],[P(moonAt)[2],moon],[P(marsAt)[2],mars]].sort(function(a,b){return a[0]-b[0];}).forEach(function(o){o[1]();});
-  // 3. a name, only for the place under the pointer (or the one being flown to)
-  if(hotR&&MQ&&RQ){
+  [[0,earth],[P(moonAt)[2],moon],[-9,mars]].sort(function(a,b){return a[0]-b[0];}).forEach(function(o){o[1]();});
+  // 3. traffic between the bodies
+  if(f>0){
+    var i2, j2, q2, u3;
+    for(k=0;k<4;k++){ // ships on the Earth-Moon links, both ways
+      la=st(.04+.07*k,.14+.07*k); if(la<=0)continue; var n2=1+Math.round(3*st(.1+.07*k,.8));
+      for(j2=0;j2<n2;j2++){u3=(t/20+j2/n2+k*.31)%1; q2=F(lane(k,j2%2?1-u3:u3)); pt(q2[0],q2[1],1.05*us*q2[3],f*la*Math.min(1,u3*10)*Math.min(1,(1-u3)*10));}
+    }
+    [['L1',.2],['L2',.3],['L4',.45],['L5',.5]].forEach(function(o,n){ // depots and stations gathering at the Lagrange points
+      var a=st(o[1],o[1]+.15); if(a<=0)return; var c=F(LG[o[0]]), gr=g.createRadialGradient(c[0],c[1],0,c[0],c[1],8*us); gr.addColorStop(0,'rgba(190,214,255,'+A(.4*a*f)+')'); gr.addColorStop(1,'rgba(190,214,255,0)');
+      g.fillStyle=gr; g.beginPath(); g.arc(c[0],c[1],8*us,0,6.2832); g.fill(); var m=1+Math.round(3*st(o[1]+.1,1));
+      for(j2=0;j2<m;j2++){q2=F(ring3(LG[o[0]],.03+.012*(j2%2),1.2,n)(t*.5+j2*1.7)); pt(q2[0],q2[1],.9*us,f*a);}
+    });
+    for(k=0;k<2;k++){ // Aldrin cyclers: one quick leg between Earth and Mars (146 days of the 780-day cycle), then the long way round
+      cl=st(.4+.15*k,.5+.15*k); if(cl<=0)continue; var ns=1+Math.round(st(.7,.9));
+      for(j2=0;j2<ns;j2++){var tau=(t/52+j2/ns+k*.43)%1, qf=.187, an=k?(tau<1-qf?3.1416*tau/(1-qf):3.1416+3.1416*(tau-1+qf)/qf):(tau<qf?3.1416*tau/qf:3.1416+3.1416*(tau-qf)/(1-qf));
+        q2=cyc(k,an); pt(q2[0],q2[1],(1.15+.35*Math.cos(an))*us,f*cl,'#FFE6B4');}
+    }
+    var nb=Math.round(6*st(.68,1)), OUT=[[-.05*w,.2*hh],[1.05*w,.6*hh],[.22*w,-.05*hh],[1.05*w,.12*hh]]; // and on outward, past Mars and off to the rest of the system
+    for(i2=0;i2<nb;i2++){var from=i2%3===2?RQ:[ex,ey], to=OUT[i2%4]; u3=(t/30+i2*.37)%1; var uu=Math.pow(u3,1.15), bend=Math.sin(3.1416*u3)*36*(i2%2?1:-1), dx=to[0]-from[0], dy=to[1]-from[1], dl=Math.hypot(dx,dy)||1;
+      pt(from[0]+dx*uu-dy/dl*bend,from[1]+dy*uu+dx/dl*bend,(1.1-.5*u3)*us,f*.85*Math.pow(Math.sin(3.1416*u3),.6),'#FFE6B4');}
+  }
+  // 4. a name, only for the place under the pointer (or the one being flown to)
+  if(hotR&&MQ){
     var s=REGION[hotR], cx0, cy0;
     if(hotR==='moon'){cx0=MQ[0]; cy0=MQ[1]-MQ[2]*1.5-FS*2.4;} else if(hotR==='mars'){cx0=RQ[0]; cy0=RQ[1]-RQ[2]*1.5-FS*2.4;} else {var sb=P([-.86*sa,-.86*ca,0]); cx0=sb[0]; cy0=Math.max(sb[1],ey+Rpx*1.12+FS*2);}
     g.font='700 '+FS+'px "Spaceward Display","Barlow Condensed","Arial Narrow",sans-serif';
     var bw=Math.round(g.measureText(s).width+FS*1.5), bh=Math.round(FS*2.1); cx0=Math.min(Math.max(cx0,bw/2+6),w-bw/2-6); cy0=Math.min(Math.max(cy0,bh/2+70),hh-bh/2-6);
-    var bx=Math.round(cx0-bw/2), by=Math.round(cy0-bh/2);
-    g.globalAlpha=Math.max(0,1-Math.max(0,fe-.6)/.4); g.fillStyle='#F4F5F7'; g.fillRect(bx,by,bw,bh); g.textAlign='center'; g.textBaseline='middle'; g.fillStyle='#07080B'; g.fillText(s,bx+bw/2,by+bh/2+1); g.globalAlpha=1;
+    var bxl=Math.round(cx0-bw/2), byl=Math.round(cy0-bh/2);
+    g.globalAlpha=Math.max(0,1-Math.max(0,fe-.6)/.4); g.fillStyle='#F4F5F7'; g.fillRect(bxl,byl,bw,bh); g.textAlign='center'; g.textBaseline='middle'; g.fillStyle='#07080B'; g.fillText(s,bxl+bw/2,byl+bh/2+1); g.globalAlpha=1;
   }
-  HIT=MQ&&RQ?{moon:[MQ[0],MQ[1],Math.max(MQ[2]*1.6,20)],mars:[RQ[0],RQ[1],Math.max(RQ[2]*1.6,20)],poly:poly}:null;
+  HIT=MQ?{moon:[MQ[0],MQ[1],Math.max(MQ[2]*1.6,20)],mars:[RQ[0],RQ[1],Math.max(RQ[2]*1.6,20)],poly:poly}:null;
 }
 /* Earth as a turning globe: NASA surface map, lit from one side, turning west to east in step with the geostationary ring.
    Orbit angles run backwards on screen (the view is from the north with +Y toward the viewer), so prograde motion is minus t.
