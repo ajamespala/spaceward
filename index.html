@@ -643,7 +643,7 @@ function flyTo(id){if(FLY||INTRO.state!==2)return; if(calm){go(id);return;} FLY=
 /* Development over time. Nothing here carries a date: one number, dev, goes from 0 (today) to 1 over DEVT seconds after the
    reveal, and each kind of activity has its own point where it starts. Everything is drawn as points of light and thin
    lines, never as icons, and nothing leaves a trail. */
-var DEVT=42, SSOR=[.3,.316,.332,.348,.364], SU=[.385,.923], SV=[-.5815,.2426,-.78]; // SU, SV: two directions across the day-night line as seen on screen (the sun is fixed there)
+var DEVT=42, SSOR=[.264,.275,.286,.297,.308], SUN=[-.72,.3,.63], SU=[.385,.923], SV=[-.5815,.2426,-.78]; // SU, SV: two directions across the day-night line as seen on screen (the sun is fixed there)
 function hz(n){var x=Math.sin(n*127.1+311.7)*43758.5453; return x-Math.floor(x);}
 var LANES=[[.5,.68,0,.9,.02,0],[-2.2,-.6,0,.92,-.05,0],[1.6,.1,.5,1,0,.1],[-.7,-.14,-.4,1.02,0,-.1]]; // Earth-Moon links: start angle at Earth, bend sideways, bend north, end x y z
 function lane(k,u){var L=LANES[k], v=1-u; return [v*v*.34*Math.cos(L[0])+2*v*u*.5+u*u*L[3], v*v*.34*Math.sin(L[0])+2*v*u*L[1]+u*u*L[4], 2*v*u*L[2]+u*u*L[5]];}
@@ -719,14 +719,16 @@ function drawHome(t){
       var fr=o.base+(1-o.base)*dev;
       for(j=0;j<o.n;j++){
         if(o.h[j]>=fr)continue; q=P(o.fn(o.ph+j/o.n*6.2832+t*o.w)); if((q[2]>=0)!==front)continue;
-        pt(q[0],q[1],o.size*Math.pow(q[3],1.8)*us,f*(front?1:.5)*o.a*Math.min(1,(fr-o.h[j])*14));
+        var vx=(q[0]-ex)/S/q[3], vy=-(q[1]-ey)/S/q[3], along=vx*SUN[0]+vy*SUN[1]+q[2]*SUN[2], off2=vx*vx+vy*vy+q[2]*q[2]-along*along; // behind Earth as the sun sees it, and inside its shadow?
+        pt(q[0],q[1],o.size*Math.pow(q[3],1.8)*us,f*(front?1:.5)*o.a*Math.min(1,(fr-o.h[j])*14)*(along<0&&off2<RE*RE?.22:1));
       }
     });
-    // sun-synchronous orbits ride the day-night line, where data centres sit in constant sunlight; the first fills fastest of all,
-    // and further levels open above it one after another. Small separate satellites only, no ring drawn through them: James found the lines too heavy.
+    // dawn-dusk sun-synchronous orbits: their plane faces the sun, so they ride the day-night line and are never in Earth's shadow,
+    // which is why data centres go there. They stay at full brightness all the way round while ordinary satellites dim on the night side.
+    // The first level fills fastest and further levels open above it. Small separate satellites, no ring drawn through them.
     for(var k2=0;k2<SSOR.length;k2++){
       var fk=k2?st(.1+.15*(k2-1),.5+.12*(k2-1)):.05+.95*st(0,.5); if(fk<=0)continue; var rk=SSOR[k2], sw=KW*Math.pow(rk,-1.5);
-      for(j=0;j<150;j++){var h=(j*.618034+k2*.21)%1; if(h>=fk)continue; q=sso(j/150*6.2832+t*sw,rk); if((q[2]>=0)!==front)continue; pt(q[0],q[1],.5*us,f*(front?.95:.45)*Math.min(1,(fk-h)*30));}
+      for(j=0;j<150;j++){var h=(j*.618034+k2*.21)%1; if(h>=fk)continue; q=sso(j/150*6.2832+t*sw,rk); if((q[2]>=0)!==front)continue; pt(q[0],q[1],.5*us,f*Math.min(1,(fk-h)*30),'#FFF3D2');}
     }
     // launches: tiny, frequent, from the turning surface up to low orbit
     var nl=1+Math.round(9*dev);
