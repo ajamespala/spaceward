@@ -97,6 +97,16 @@ p{margin:0;max-width:34em;color:#C9CED6}
 #home h1.lh svg{width:min(42vw,440px,60vh)}
 #home .side{display:flex;flex-direction:column;gap:14px;align-items:flex-start;flex:1 1 300px;min-width:0}
 #home .btn{pointer-events:auto}
+.devbar{position:absolute;left:clamp(150px,13vw,230px);right:clamp(64px,11vw,180px);bottom:30px;display:flex;align-items:center;gap:14px;z-index:2;transition:opacity 1.1s ease}
+#home.pre .devbar{opacity:0;pointer-events:none}
+.devbar span{font-family:var(--display);font-size:13px;letter-spacing:.08em;color:#8D95A3;text-transform:uppercase;white-space:nowrap}
+.devbar input{flex:1;min-width:0;height:26px;margin:0;padding:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer;--p:0%}
+.devbar input::-webkit-slider-runnable-track{height:2px;background:linear-gradient(to right,#F4F5F7 var(--p),rgba(244,245,247,.24) var(--p))}
+.devbar input::-moz-range-track{height:2px;background:rgba(244,245,247,.24)}
+.devbar input::-moz-range-progress{height:2px;background:#F4F5F7}
+.devbar input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;background:#F4F5F7;border:0;margin-top:-5.5px}
+.devbar input::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:#F4F5F7;border:0}
+.devbar input:focus-visible{outline:1px solid rgba(244,245,247,.6);outline-offset:3px}
 #home .cap{flex:none;max-width:200px;text-align:right;line-height:1.35}
 #cislunar .art{flex:1.9 1 420px}
 #cislunar .inner{gap:24px 48px}
@@ -252,6 +262,8 @@ body[data-view="shop"] .bar :focus-visible{outline-color:var(--void)}
   #home .side{flex:none;gap:10px}
   #home .cap{text-align:left;max-width:none}
   #home .cap br{display:none}
+  .devbar{left:124px;right:56px;bottom:26px;gap:9px}
+  .devbar span{font-size:11px}
   #home .note{display:none}
   .morph{width:min(54vw,30vh)}
   #cis{height:auto;width:100%;max-height:32vh}
@@ -305,6 +317,7 @@ body[data-view="shop"] .bar :focus-visible{outline-color:var(--void)}
 </div>
 <span class="cap">Drag to look around. <br>Pick a place to fly there. <br>Not to scale.</span>
 </div></div>
+<div class="devbar"><span>Today</span><input type="range" id="dev" min="0" max="1000" value="0" step="1" aria-label="Development over time: drag to move forward or back"><span>Later</span></div>
 </section>
 
 <section class="stage" id="moon" data-name="The Moon" data-km="384400">
@@ -628,13 +641,22 @@ function flyTo(id){if(FLY||INTRO.state!==2)return; if(calm){go(id);return;} FLY=
 /* Development over time. Nothing here carries a date: one number, dev, goes from 0 (today) to 1 over DEVT seconds after the
    reveal, and each kind of activity has its own point where it starts. Everything is drawn as points of light and thin
    lines, never as icons, and nothing leaves a trail. */
-var DEVT=85, SU=[.385,.923], SV=[-.5815,.2426,-.78]; // SU, SV: two directions across the day-night line as seen on screen (the sun is fixed there)
+var DEVT=42, SSOR=[.3,.316,.332,.348,.364], SU=[.385,.923], SV=[-.5815,.2426,-.78]; // SU, SV: two directions across the day-night line as seen on screen (the sun is fixed there)
 function hz(n){var x=Math.sin(n*127.1+311.7)*43758.5453; return x-Math.floor(x);}
 var LANES=[[.5,.68,0,.9,.02,0],[-2.2,-.6,0,.92,-.05,0],[1.6,.1,.5,1,0,.1],[-.7,-.14,-.4,1.02,0,-.1]]; // Earth-Moon links: start angle at Earth, bend sideways, bend north, end x y z
 function lane(k,u){var L=LANES[k], v=1-u; return [v*v*.34*Math.cos(L[0])+2*v*u*.5+u*u*L[3], v*v*.34*Math.sin(L[0])+2*v*u*L[1]+u*u*L[4], 2*v*u*L[2]+u*u*L[5]];}
 var MLIGHT=[], MNIGHT=[[.45,.5],[.6,.3],[.3,.7],[.7,.1],[.5,.15],[.2,.5],[.62,.52],[.38,.33],[.52,.68],[.75,.32]];
 (function(){for(var i=0;i<48;i++){var la=Math.max(-1.5,Math.min(1.2,-1.45+i/47*2.2+(hz(i)-.5)*.5)), lo=(hz(i+50)-.5)*2.3; MLIGHT.push([Math.cos(la)*Math.sin(lo),-Math.sin(la)]);}})(); // lights on the Moon, south pole first
 var MSTAGE=[rImg,null,null,null];
+/* how far along: it runs forward by itself after the reveal, and the slider under the scene shows it and can be dragged either way */
+var DEV={v:calm?.55:0,drag:false,last:0,el:$('dev')};
+function devShow(){if(DEV.el){DEV.el.value=Math.round(DEV.v*1000); DEV.el.style.setProperty('--p',(DEV.v*100).toFixed(1)+'%');}}
+if(DEV.el){
+  DEV.el.addEventListener('input',function(){DEV.v=DEV.el.value/1000; DEV.el.style.setProperty('--p',(DEV.v*100).toFixed(1)+'%'); if(calm)drawHome(tNow);});
+  ['pointerdown','touchstart'].forEach(function(ev){DEV.el.addEventListener(ev,function(){DEV.drag=true;},{passive:true});});
+  ['pointerup','pointercancel','touchend'].forEach(function(ev){window.addEventListener(ev,function(){DEV.drag=false;},{passive:true});});
+  devShow();
+}
 function drawHome(t){
   tNow=t;
   var w=oc.clientWidth, hh=oc.clientHeight; if(!w||!hh)return;
@@ -643,7 +665,8 @@ function drawHome(t){
   var g=ox; g.setTransform(d,0,0,d,0,0); g.clearRect(0,0,w,hh);
   if(HV.fitW!==w||HV.fitH!==hh)fitHome(w,hh);
   var I=introStep(t), live=INTRO.state===2, ts=t-I.tI, fe=0;
-  var dev=calm?.55:Math.max(0,Math.min(1,(ts-5.5)/DEVT));
+  if(live&&!calm&&!DEV.drag&&DEV.v<1){DEV.v=Math.min(1,DEV.v+Math.max(0,Math.min(.1,t-DEV.last))/DEVT); devShow();} DEV.last=t;
+  var dev=DEV.v;
   function st(a,b){var v=(dev-a)/(b-a); return v<0?0:v>1?1:v;}
   if(FLY){var fu=(t-FLY.t0)/1.2; fe=sm(fu); if(fu>=.7&&!FLY.went){FLY.went=true; go(FLY.id);} if(fu>3.4){fe=sm((3.4+.7-fu)/.7); if(fu>4.1){FLY=null;fe=0;}}}
   hotR=FLY?FLY.id:((live&&hptr&&!hdrag&&!hpinch)?regionAt(hptr.x,hptr.y):null);
@@ -687,7 +710,7 @@ function drawHome(t){
     for(k=0;k<2;k++){var cl=st(.4+.15*k,.5+.15*k); if(cl>0){g.strokeStyle='rgba(206,170,150,'+A(.2*cl*f)+')'; g.beginPath(); for(i=0;i<=64;i++){var cq=cyc(k,i/64*6.2832); if(i)g.lineTo(cq[0],cq[1]); else g.moveTo(cq[0],cq[1]);} g.stroke();}}
   }
   // 2. the bodies and what moves close to them, far ones first
-  function sso(a){var c=Math.cos(a)*.3, s2=Math.sin(a)*.3; return [ex+(SU[0]*c+SV[0]*s2)*S, ey-(SU[1]*c+SV[1]*s2)*S, SV[2]*s2];}
+  function sso(a,rk){var c=Math.cos(a)*rk, s2=Math.sin(a)*rk; return [ex+(SU[0]*c+SV[0]*s2)*S, ey-(SU[1]*c+SV[1]*s2)*S, SV[2]*s2];}
   function near(front){
     if(f<=0)return; var i, j, q, a, r;
     NEAR.forEach(function(o){ // every orbit fills in as time goes on
@@ -697,11 +720,14 @@ function drawHome(t){
         pt(q[0],q[1],o.size*Math.pow(q[3],1.8)*us,f*(front?1:.5)*o.a*Math.min(1,(fr-o.h[j])*14));
       }
     });
-    // the sun-synchronous orbit rides the day-night line; it fills fastest of all, until it reads as a solid line
-    g.lineWidth=1+dev*.9; g.strokeStyle='rgba('+W+','+A(f*(.06+.5*dev)*(front?1:.45))+')'; g.beginPath();
-    for(i=0;i<=40;i++){q=sso((front?3.1416:0)+i/40*3.1416); if(i)g.lineTo(q[0],q[1]); else g.moveTo(q[0],q[1]);} g.stroke();
-    var sf=(7+105*dev)/112, sw=KW*Math.pow(.3,-1.5);
-    for(j=0;j<112;j++){var h=(j*.618034)%1; if(h>=sf)continue; q=sso(j/112*6.2832+t*sw); if((q[2]>=0)!==front)continue; pt(q[0],q[1],.85*us,f*(front?.95:.45)*Math.min(1,(sf-h)*30));}
+    // sun-synchronous orbits ride the day-night line, where data centres sit in constant sunlight; the first fills fastest of all,
+    // until it reads as a solid line, and further levels open above it one after another
+    for(var k2=0;k2<SSOR.length;k2++){
+      var fk=k2?st(.1+.15*(k2-1),.5+.12*(k2-1)):.0625+.9375*st(0,.5); if(fk<=0)continue; var rk=SSOR[k2], sw=KW*Math.pow(rk,-1.5);
+      g.lineWidth=1+fk*.7; g.strokeStyle='rgba('+W+','+A(f*(.05+.5*fk)*(front?1:.45))+')'; g.beginPath();
+      for(i=0;i<=40;i++){q=sso((front?3.1416:0)+i/40*3.1416,rk); if(i)g.lineTo(q[0],q[1]); else g.moveTo(q[0],q[1]);} g.stroke();
+      for(j=0;j<112;j++){var h=(j*.618034+k2*.21)%1; if(h>=fk)continue; q=sso(j/112*6.2832+t*sw,rk); if((q[2]>=0)!==front)continue; pt(q[0],q[1],.85*us,f*(front?.95:.45)*Math.min(1,(fk-h)*30));}
+    }
     // launches: tiny, frequent, from the turning surface up to low orbit
     var nl=1+Math.round(9*dev);
     for(i=0;i<nl;i++){
