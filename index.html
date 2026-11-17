@@ -525,9 +525,9 @@ sky.addEventListener('scroll',kick,{passive:true});
 var oc=$('orbits'), ox=oc.getContext('2d'), homeEl=$('home'), hcopy=homeEl.querySelector('.copy');
 var eImg=new Image(), mImg=new Image(), rImg=new Image(); eImg.src='img/earth.jpg'; mImg.src='img/moon.jpg'; rImg.src='img/mars.jpg';
 var tImg=new Image(), GLOBE=null, LIMB=null; tImg.src='img/earthmap.jpg';
-var ROT=-.16, HDC=5, RE=.25, RM=.072, RMARS=.08, EL_I=.33, tNow=0;
-var KW=(2*Math.PI/22)*Math.pow(.235,1.5), WM=.03, WMARS=.017, M0=1.24, MARS0=.37, GEO_R=.66, WE=KW*Math.pow(GEO_R,-1.5);
-var HV={az:0,el:EL_I,daz:0,del:0,z:1,el0:.45,S1:200,ex1:0,ey1:0,Rm:1.5,fitW:0,fitH:0,mars:null};
+var ROT=-.16, HDC=5, RE=.25, RM=.072, RMARS=.06, EL_I=.33, EL_F=.56, MARSP=[.73,4.07,0], tNow=0;
+var KW=(2*Math.PI/22)*Math.pow(.235,1.5), WM=.03, M0=1.31, GEO_R=.66, WE=KW*Math.pow(GEO_R,-1.5);
+var HV={az:0,el:EL_I,daz:0,del:0,z:1,A:null,B:null,fitW:0,fitH:0};
 var NEAR=[];
 (function(){
   function add(r,inc,node,n,size,a){NEAR.push({n:n,size:size,a:a,ph:NEAR.length*1.7,w:KW*Math.pow(r,-1.5),fn:ring3([0,0,0],r,inc*Math.PI/180,node*Math.PI/180)});}
@@ -594,23 +594,23 @@ function introSkip(){if(INTRO.state===1)INTRO.ff=true;}
 sky.addEventListener('scroll',function(){if(INTRO.state===1&&!atHome())introSkip();},{passive:true});
 if(!calm&&location.hash!=='#shop'&&!document.hidden){homeEl.classList.add('pre'); setTimeout(function(){homeEl.classList.remove('pre');},9000);}
 
-/* where the scene sits once pulled back: above the headline, as large as the space allows */
+/* where the scene sits once pulled back: above the headline, as large as the space allows. Two framings are worked out:
+   A, low over the plane as in the logo, which the opening pulls back to, and B, higher and wider, which it drifts up to. */
 function fitHome(w,hh){
   HV.fitW=w; HV.fitH=hh;
   var or=oc.getBoundingClientRect(), cb=hcopy.getBoundingClientRect(), wide=w>720;
   var L=wide?Math.max(24,w*.04):8, R=w-(wide?Math.max(84,w*.085):50), T=wide?92:66, B=Math.max(T+180,cb.top-or.top-(wide?26:12));
-  HV.Rm=wide?1.5:1.32; HV.mars=ring3([0,0,0],HV.Rm,.07,.9);
-  var els=[.72,.64,.56,.5,.45,.4,.36], cr=Math.cos(ROT), sr=Math.sin(ROT), fits=[], Sw=0;
-  els.forEach(function(el){
+  var cr=Math.cos(ROT), sr=Math.sin(ROT);
+  function fit(el){
     var se=Math.sin(el), ce=Math.cos(el), x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
-    for(var i=0;i<72;i++){var q=HV.mars(i/72*6.2832), Y=-q[1], dep=Y*ce+q[2]*se, k=HDC/(HDC-dep), px=q[0]*k, py=(Y*se-q[2]*ce)*k, sx=px*cr-py*sr, sy=px*sr+py*cr;
-      if(sx<x0)x0=sx; if(sx>x1)x1=sx; if(sy<y0)y0=sy; if(sy>y1)y1=sy;}
-    x0-=.1; x1+=.1; y0-=.14; y1+=.1;
-    var a=(R-L)/(x1-x0), b=(B-T)/(y1-y0), S=Math.min(a,b); Sw=Math.max(Sw,a);
-    fits.push({el:el,S:S,ex:(L+R)/2-(x0+x1)/2*S,ey:(T+B)/2-(y0+y1)/2*S});
-  });
-  var best=fits[fits.length-1]; for(var n=0;n<fits.length;n++){if(fits[n].S>=.7*Sw){best=fits[n];break;}}
-  HV.el0=best.el; HV.S1=best.S; HV.ex1=best.ex; HV.ey1=best.ey;
+    function add(q,m){var Y=-q[1], dep=Y*ce+q[2]*se, k=HDC/Math.max(1.1,HDC-dep), px=q[0]*k, py=(Y*se-q[2]*ce)*k, sx=px*cr-py*sr, sy=px*sr+py*cr;
+      if(sx-m<x0)x0=sx-m; if(sx+m>x1)x1=sx+m; if(sy-m<y0)y0=sy-m; if(sy+m>y1)y1=sy+m;}
+    for(var i=0;i<72;i++)add([Math.cos(i/72*6.2832),Math.sin(i/72*6.2832),0],.09);
+    add(MARSP,.1);
+    var S=Math.min((R-L)/(x1-x0),(B-T)/(y1-y0));
+    return {el:el,S:S,ex:(L+R)/2-(x0+x1)/2*S,ey:(T+B)/2-(y0+y1)/2*S};
+  }
+  HV.A=fit(EL_I); HV.B=fit(EL_F);
 }
 var hptr=null, hdrag=null, hpts={}, hpinch=null, hotR=null, HIT=null, FLY=null;
 var REGION={moon:'THE MOON',cislunar:'CISLUNAR SPACE',mars:'MARS'}, FLYZ={moon:5.2,cislunar:2,mars:4.4};
@@ -635,31 +635,31 @@ function drawHome(t){
   if(FLY){var fu=(t-FLY.t0)/1.2; fe=sm(fu); if(fu>=.7&&!FLY.went){FLY.went=true; go(FLY.id);} if(fu>3.4){fe=sm((3.4+.7-fu)/.7); if(fu>4.1){FLY=null;fe=0;}}}
   hotR=FLY?FLY.id:((live&&hptr&&!hdrag&&!hpinch)?regionAt(hptr.x,hptr.y):null);
   oc.style.cursor=hdrag&&hdrag.moved>5?'grabbing':(hotR?'pointer':'grab');
-  // camera: drifts a little by itself, leans to the pointer, follows the drag; during the opening it climbs from the logo's low angle
-  var tAz=HV.daz+(calm?0:.26*Math.sin(Math.max(0,ts-4.6)*.1)), tEl=Math.max(.12,Math.min(1.35,HV.el0+HV.del+(calm?0:.035*Math.sin(ts*.13))));
-  if(hptr&&!hdrag&&!calm&&live&&!FLY)tAz+=(hptr.x/w-.5)*.14;
+  // camera: stays low over the plane, as in the logo, then over about a minute rises to look down on the whole scene; it sways a little, leans to the pointer and follows the drag
+  var rise=calm?0:sm((ts-8)/55), bS=HV.A.S*Math.pow(HV.B.S/HV.A.S,rise), bx=HV.A.ex+(HV.B.ex-HV.A.ex)*rise, by=HV.A.ey+(HV.B.ey-HV.A.ey)*rise;
+  var tAz=HV.daz+(calm?0:.07*Math.sin(Math.max(0,ts-4.6)*.09)), tEl=Math.max(.1,Math.min(1.35,EL_I+(EL_F-EL_I)*rise+HV.del));
+  if(hptr&&!hdrag&&!calm&&live&&!FLY)tAz+=(hptr.x/w-.5)*.05;
   if(!live){HV.az=tAz; HV.el=EL_I+(tEl-EL_I)*I.p;}
   else if(calm||hdrag){HV.az=tAz;HV.el=tEl;} else {HV.az+=(tAz-HV.az)*.08; HV.el+=(tEl-HV.el)*.08;}
-  var S1=HV.S1*HV.z, S=S1, ex=HV.ex1, ey=HV.ey1;
+  var S1=bS*HV.z, S=S1, ex=bx, ey=by;
   if(I.p<1){ // from the logo's framing out to the whole scene, as one steady zoom about a fixed point
     var sl=Math.min(w/250,hh/190), S0=132*sl/RE, fr; S=S0*Math.pow(S1/S0,I.p); fr=(S-S1)/(S0-S1);
-    ex=HV.ex1+(w/2-HV.ex1)*fr; ey=HV.ey1+(hh*.46+148.7*sl-HV.ey1)*fr;
+    ex=bx+(w/2-bx)*fr; ey=by+(hh*.46+148.7*sl-by)*fr;
   }
   if(fe>0)S=S1*Math.pow(FLYZ[FLY.id],fe);
   var ca=Math.cos(HV.az), sa=Math.sin(HV.az), se=Math.sin(HV.el), ce=Math.cos(HV.el), cr=Math.cos(ROT), sr=Math.sin(ROT);
-  function P(q){var X=q[0]*ca-q[1]*sa, Y=-(q[0]*sa+q[1]*ca), dep=Y*ce+q[2]*se, k=HDC/(HDC-dep), px=X*k, py=(Y*se-q[2]*ce)*k; return [ex+(px*cr-py*sr)*S, ey+(px*sr+py*cr)*S, dep, k];}
-  var th=M0+WM*ts, moonAt=[Math.cos(th),Math.sin(th),0], marsAt=HV.mars(MARS0+WMARS*ts);
+  function P(q){var X=q[0]*ca-q[1]*sa, Y=-(q[0]*sa+q[1]*ca), dep=Y*ce+q[2]*se, k=HDC/Math.max(1.1,HDC-dep), px=X*k, py=(Y*se-q[2]*ce)*k; return [ex+(px*cr-py*sr)*S, ey+(px*sr+py*cr)*S, dep, k];}
+  var th=M0+WM*ts, moonAt=[Math.cos(th),Math.sin(th),0], marsAt=MARSP; // Mars does not circle Earth: it stays put, far off
   if(fe>0){var tq=P(FLY.id==='moon'?moonAt:FLY.id==='mars'?marsAt:[0,0,0]); ex+=(w/2-tq[0])*fe; ey+=(hh*.44-tq[1])*fe;}
   var W='244,245,247', FS=Math.max(10.5,Math.min(14,w/96)), us=Math.max(.8,Math.min(1.6,S/270)), f=I.f, Rpx=RE*S;
   function A(v){return (v<0?0:v>1?1:v).toFixed(3);}
   function trace(fn,n){g.beginPath(); for(var i=0;i<=n;i++){var q=P(fn(i/n*6.2832)); if(i)g.lineTo(q[0],q[1]); else g.moveTo(q[0],q[1]);}}
   var unit=function(a){return [Math.cos(a),Math.sin(a),0];};
-  // 1. the two orbits, faint on the plane
+  // 1. the Moon's orbit, faint on the plane
   var poly=[]; for(var i=0;i<40;i++){var pq=P([Math.cos(i/40*6.2832)*1.1,Math.sin(i/40*6.2832)*1.1,0]); poly.push([pq[0],pq[1]]);}
   if(f>0){
     if(hotR==='cislunar'){trace(unit,72); g.fillStyle='rgba(120,170,255,.075)'; g.fill();}
     g.lineWidth=1; g.strokeStyle='rgba('+(hotR==='cislunar'||hotR==='moon'?W+',.75':'150,162,184,'+A(.3*f))+')'; trace(unit,96); g.stroke();
-    g.strokeStyle='rgba(196,150,128,'+A((hotR==='mars'?.9:.26)*f)+')'; trace(HV.mars,120); g.stroke();
   }
   // 2. the bodies, far ones first
   function near(front){
@@ -702,11 +702,11 @@ function drawHome(t){
     MQ=[x,y,r]; if(I.b<=0)return;
     g.save(); g.globalAlpha=I.b; g.beginPath(); g.arc(x,y,r,0,6.2832); g.clip(); pic(mImg,x,y,r,[1.2,1.26],2.52,'#C9CED6');
     if(I.m>0){ // lit from the upper left, like Earth, once pulled back
-      g.globalAlpha=I.b*I.m; var mg=g.createLinearGradient(x-r*.92,y-r*.38,x+r*.92,y+r*.38); mg.addColorStop(0,'rgba(4,6,12,0)'); mg.addColorStop(.5,'rgba(4,6,12,0)'); mg.addColorStop(.86,'rgba(4,6,12,.9)'); mg.addColorStop(1,'rgba(4,6,12,.96)');
+      g.globalAlpha=I.m; var mg=g.createLinearGradient(x-r*.92,y-r*.38,x+r*.92,y+r*.38); mg.addColorStop(0,'rgba(4,6,12,0)'); mg.addColorStop(.5,'rgba(4,6,12,0)'); mg.addColorStop(.86,'rgba(4,6,12,.9)'); mg.addColorStop(1,'rgba(4,6,12,.96)');
       g.fillStyle=mg; g.fillRect(x-r,y-r,r*2,r*2);
     }
     if(I.m<1&&logoPaths().dark){ // in the opening: dark but for the lit edge the logo's Moon has
-      g.globalAlpha=I.b*(1-I.m); g.translate(x,y); g.scale(r/28,r/28); g.translate(-30,-11.2); g.fillStyle='rgba(4,6,12,.87)'; g.fill(LOGO.dark,'evenodd');
+      g.globalAlpha=1-I.m; g.translate(x,y); g.scale(r/28,r/28); g.translate(-30,-11.2); g.fillStyle='rgba(4,6,12,.9)'; g.fill(LOGO.dark,'evenodd');
     }
     g.restore(); if(hotR==='moon')ringHot(MQ);
   }
