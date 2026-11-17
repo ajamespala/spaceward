@@ -634,7 +634,9 @@ function regionAt(x,y){
   if(Math.hypot(x-H.mars[0],y-H.mars[1])<H.mars[2])return 'mars';
   var p=H.poly, inside=false;
   for(i=0,j=p.length-1;i<p.length;j=i++){if(((p[i][1]>y)!==(p[j][1]>y))&&(x<(p[j][0]-p[i][0])*(y-p[i][1])/(p[j][1]-p[i][1])+p[i][0]))inside=!inside;}
-  return inside?'cislunar':null;
+  if(inside)return 'cislunar';
+  if(H.cor){var c=H.cor, dx=c[2]-c[0], dy=c[3]-c[1], u=((x-c[0])*dx+(y-c[1])*dy)/(dx*dx+dy*dy||1); u=u<0?0:u>1?1:u; if(Math.hypot(x-c[0]-dx*u,y-c[1]-dy*u)<c[4])return 'mars';} // the cyclers' loops out to Mars, and the space between them, count as Mars
+  return null;
 }
 /* picking a place: the view flies to it, and partway through the page starts up to that pane */
 function flyTo(id){if(FLY||INTRO.state!==2)return; if(calm){go(id);return;} FLY={id:id,t0:tNow,went:false};}
@@ -700,14 +702,14 @@ function drawHome(t){
   var unit=function(a){return [Math.cos(a),Math.sin(a),0];};
   if(I.m<1){var lx0=ex+.591*Rpx, ly0=ey-1.587*Rpx, lr0=.053*Rpx; RQ=[lx0+(RQ[0]-lx0)*I.m, ly0+(RQ[1]-ly0)*I.m, lr0+(RQ[2]-lr0)*I.m];}
   // 1. what lies on the plane: the Moon's orbit, the links out to it, the cyclers' loops to Mars
-  var poly=[]; for(var i=0;i<40;i++){var pq=P([Math.cos(i/40*6.2832)*1.1,Math.sin(i/40*6.2832)*1.1,0]); poly.push([pq[0],pq[1]]);}
+  var poly=[], cpath=[]; for(var i=0;i<40;i++){var pq=P([Math.cos(i/40*6.2832)*1.1,Math.sin(i/40*6.2832)*1.1,0]); poly.push([pq[0],pq[1]]);}
   var edx=RQ[0]-ex, edy=RQ[1]-ey, eL=Math.hypot(edx,edy)||1, e1x=edx/eL, e1y=edy/eL, cya=(1.1*eL+1.5*Rpx)/2, cyx=ex-e1x*1.5*Rpx+e1x*cya, cyy=ey-e1y*1.5*Rpx+e1y*cya;
   function cyc(k,a){var b=cya*.11*(k?-1:1), c=Math.cos(a), s2=Math.sin(a); return [cyx-e1x*cya*c-e1y*b*s2, cyy-e1y*cya*c+e1x*b*s2];} // a = 0 at the Earth end, pi at the Mars end
   if(f>0){
     if(hotR==='cislunar'){trace(unit,72,P); g.fillStyle='rgba(120,170,255,.075)'; g.fill();}
     g.lineWidth=1; g.strokeStyle='rgba('+(hotR==='cislunar'||hotR==='moon'?W+',.75':'150,162,184,'+A(.3*f))+')'; trace(unit,96,P); g.stroke();
     for(var k=0;k<4;k++){var la=st(.04+.07*k,.14+.07*k); if(la>0){g.strokeStyle='rgba(150,172,214,'+A(.2*la*f)+')'; trace(function(u){return lane(k,u);},24,F,0,1); g.stroke();}}
-    for(k=0;k<2;k++){var cl=st(.4+.15*k,.5+.15*k); if(cl>0){g.strokeStyle='rgba(206,170,150,'+A(.2*cl*f)+')'; g.beginPath(); for(i=0;i<=64;i++){var cq=cyc(k,i/64*6.2832); if(i)g.lineTo(cq[0],cq[1]); else g.moveTo(cq[0],cq[1]);} g.stroke();}}
+    for(k=0;k<2;k++){var cl=st(.4+.15*k,.5+.15*k); if(cl>0){g.strokeStyle='rgba('+(hotR==='mars'?W+','+A(.75*cl*f):'206,170,150,'+A(.2*cl*f))+')'; g.beginPath(); for(i=0;i<=64;i++){var cq=cyc(k,i/64*6.2832); cpath.push(cq); if(i)g.lineTo(cq[0],cq[1]); else g.moveTo(cq[0],cq[1]);} g.stroke();}}
   }
   // 2. the bodies and what moves close to them, far ones first
   function sso(a,rk){var c=Math.cos(a)*rk, s2=Math.sin(a)*rk; return [ex+(SU[0]*c+SV[0]*s2)*S, ey-(SU[1]*c+SV[1]*s2)*S, SV[2]*s2];}
@@ -829,7 +831,7 @@ function drawHome(t){
     var bxl=Math.round(cx0-bw/2), byl=Math.round(cy0-bh/2);
     g.globalAlpha=Math.max(0,1-Math.max(0,fe-.6)/.4); g.fillStyle='#F4F5F7'; g.fillRect(bxl,byl,bw,bh); g.textAlign='center'; g.textBaseline='middle'; g.fillStyle='#07080B'; g.fillText(s,bxl+bw/2,byl+bh/2+1); g.globalAlpha=1;
   }
-  HIT=MQ?{moon:[MQ[0],MQ[1],Math.max(MQ[2]*1.6,20)],mars:[RQ[0],RQ[1],Math.max(RQ[2]*1.6,20)],poly:poly}:null;
+  HIT=MQ?{moon:[MQ[0],MQ[1],Math.max(MQ[2]*1.6,20)],mars:[RQ[0],RQ[1],Math.max(RQ[2]*1.6,20)],poly:poly,cor:cpath.length?[ex,ey,RQ[0],RQ[1],cya*.11+13]:null}:null;
 }
 /* Earth as a turning globe: NASA surface map, lit from one side, turning west to east in step with the geostationary ring.
    Orbit angles run backwards on screen (the view is from the north with +Y toward the viewer), so prograde motion is minus t.
