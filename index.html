@@ -724,9 +724,9 @@ function drawHome(t){
     // until it reads as a solid line, and further levels open above it one after another
     for(var k2=0;k2<SSOR.length;k2++){
       var fk=k2?st(.1+.15*(k2-1),.5+.12*(k2-1)):.0625+.9375*st(0,.5); if(fk<=0)continue; var rk=SSOR[k2], sw=KW*Math.pow(rk,-1.5);
-      g.lineWidth=1+fk*.7; g.strokeStyle='rgba('+W+','+A(f*(.05+.5*fk)*(front?1:.45))+')'; g.beginPath();
-      for(i=0;i<=40;i++){q=sso((front?3.1416:0)+i/40*3.1416,rk); if(i)g.lineTo(q[0],q[1]); else g.moveTo(q[0],q[1]);} g.stroke();
-      for(j=0;j<112;j++){var h=(j*.618034+k2*.21)%1; if(h>=fk)continue; q=sso(j/112*6.2832+t*sw,rk); if((q[2]>=0)!==front)continue; pt(q[0],q[1],.85*us,f*(front?.95:.45)*Math.min(1,(fk-h)*30));}
+      g.lineWidth=1+fk*.45; g.strokeStyle='rgba('+W+','+A(f*(.05+.8*fk)*(front?1:.45))+')'; g.beginPath();
+      for(i=0;i<=56;i++){q=sso((front?3.1416:0)+i/56*3.1416,rk); if(i)g.lineTo(q[0],q[1]); else g.moveTo(q[0],q[1]);} g.stroke();
+      var bead=1-sm((fk-.2)/.3); if(bead>0)for(j=0;j<112;j++){var h=(j*.618034+k2*.21)%1; if(h>=fk)continue; q=sso(j/112*6.2832+t*sw,rk); if((q[2]>=0)!==front)continue; pt(q[0],q[1],.8*us,bead*f*(front?.95:.45)*Math.min(1,(fk-h)*30));} // separate satellites only while a level is sparse; once it fills it is drawn as a smooth line, not a string of beads
     }
     // launches: tiny, frequent, from the turning surface up to low orbit
     var nl=1+Math.round(9*dev);
